@@ -6,7 +6,7 @@ const g = global as unknown as { _qdrant?: QdrantClient };
 function createClient(): QdrantClient {
   const url = process.env.QDRANT_URL ?? "http://localhost:6333";
   const apiKey = process.env.QDRANT_API_KEY || undefined;
-  return new QdrantClient({ url, ...(apiKey ? { apiKey } : {}) });
+  return new QdrantClient({ url, checkCompatibility: false, ...(apiKey ? { apiKey } : {}) });
 }
 
 export const qdrant: QdrantClient = g._qdrant ?? createClient();
