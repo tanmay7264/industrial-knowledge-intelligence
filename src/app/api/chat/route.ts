@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const { chunks, subgraph, mode, systemPrompt, sources, scores } =
+  const { subgraph, mode, systemPrompt, sources, scores } =
     await routedRetrieve(query, queryEmbedding, docTypeFilter);
 
   const stream = new ReadableStream({

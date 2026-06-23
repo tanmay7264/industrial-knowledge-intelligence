@@ -24,12 +24,18 @@ export default function Home() {
           RAG copilot backed by a live knowledge graph.
         </p>
 
-        <div className="flex gap-3 mt-2">
+        <div className="flex gap-3 mt-2 flex-wrap justify-center">
           <Link
             href="/chat"
             className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
             Open Copilot →
+          </Link>
+          <Link
+            href="/graph"
+            className="inline-flex items-center gap-2 rounded-lg bg-purple-600 text-white px-5 py-2.5 text-sm font-semibold hover:bg-purple-700 transition-colors"
+          >
+            Graph Explorer
           </Link>
           <Link
             href="/ingest"
