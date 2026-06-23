@@ -14,12 +14,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SubgraphView } from "@/components/subgraph-view";
 import type { Source, ConfidenceLevel } from "@/lib/rag/answer";
+import type { SubgraphData } from "@/lib/graph/types";
+import type { RetrievalMode } from "@/lib/rag/router";
 
 const EXAMPLE_QUESTIONS = [
   "What are the maintenance intervals for the hydraulic pump?",
-  "List all safety regulations mentioned in the compliance documents.",
-  "What process parameters are required for the welding procedure?",
+  "Which regulations govern the pressure vessel equipment?",
+  "Trace all documents connected to ISO 9001 compliance.",
 ];
 
 interface Message {
@@ -31,6 +34,8 @@ interface Message {
   latencyMs?: number;
   abstained?: boolean;
   streaming?: boolean;
+  subgraph?: SubgraphData | null;
+  mode?: RetrievalMode;
 }
 
 const CONFIDENCE_STYLES: Record<ConfidenceLevel, string> = {
@@ -39,10 +44,30 @@ const CONFIDENCE_STYLES: Record<ConfidenceLevel, string> = {
   Low: "bg-destructive text-destructive-foreground border-transparent",
 };
 
+const MODE_STYLES: Record<RetrievalMode, string> = {
+  vector: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  graph: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+  hybrid: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+};
+
+const MODE_LABELS: Record<RetrievalMode, string> = {
+  vector: "vector",
+  graph: "graph",
+  hybrid: "hybrid",
+};
+
 function ConfidenceBadge({ level }: { level: ConfidenceLevel }) {
   return (
     <Badge className={`text-xs ${CONFIDENCE_STYLES[level]}`}>
       {level} confidence
+    </Badge>
+  );
+}
+
+function ModeBadge({ mode }: { mode: RetrievalMode }) {
+  return (
+    <Badge variant="outline" className={`text-xs ${MODE_STYLES[mode]}`}>
+      {MODE_LABELS[mode]}
     </Badge>
   );
 }
@@ -84,8 +109,16 @@ function SourceDialog({
         </DialogHeader>
         <div className="space-y-3">
           <div className="flex gap-3 text-xs text-muted-foreground">
-            <span>Section / Page: <strong className="text-foreground">{source?.page}</strong></span>
-            <span>Similarity: <strong className="text-foreground">{((source?.score ?? 0) * 100).toFixed(1)}%</strong></span>
+            <span>
+              Section / Page:{" "}
+              <strong className="text-foreground">{source?.page}</strong>
+            </span>
+            <span>
+              Similarity:{" "}
+              <strong className="text-foreground">
+                {((source?.score ?? 0) * 100).toFixed(1)}%
+              </strong>
+            </span>
           </div>
           <div className="rounded-lg bg-muted p-3 text-sm leading-relaxed text-foreground border border-border">
             {source?.snippet}
@@ -102,7 +135,6 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeSource, setActiveSource] = useState<Source | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -139,7 +171,6 @@ export default function ChatPage() {
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        // Cached (non-streaming) response
         const ct = res.headers.get("Content-Type") ?? "";
         if (ct.includes("application/json")) {
           const data = await res.json();
@@ -153,6 +184,8 @@ export default function ChatPage() {
                     confidence: data.confidence,
                     latencyMs: data.latencyMs,
                     abstained: data.abstained,
+                    subgraph: data.subgraph ?? null,
+                    mode: data.mode,
                     streaming: false,
                   }
                 : m
@@ -161,11 +194,9 @@ export default function ChatPage() {
           return;
         }
 
-        // SSE streaming response
         const reader = res.body!.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
-        let pendingSources: Source[] = [];
 
         while (true) {
           const { done, value } = await reader.read();
@@ -185,10 +216,16 @@ export default function ChatPage() {
             const payload = JSON.parse(dataLine.slice(6));
 
             if (eventName === "meta") {
-              pendingSources = payload.sources as Source[];
               setMessages((prev) =>
                 prev.map((m) =>
-                  m.id === assistantId ? { ...m, sources: pendingSources } : m
+                  m.id === assistantId
+                    ? {
+                        ...m,
+                        sources: payload.sources as Source[],
+                        subgraph: payload.subgraph as SubgraphData | null,
+                        mode: payload.mode as RetrievalMode,
+                      }
+                    : m
                 )
               );
             } else if (eventName === "text") {
@@ -208,6 +245,7 @@ export default function ChatPage() {
                         confidence: payload.confidence as ConfidenceLevel,
                         latencyMs: payload.latencyMs as number,
                         abstained: payload.abstained as boolean,
+                        mode: payload.mode as RetrievalMode,
                         streaming: false,
                       }
                     : m
@@ -249,24 +287,31 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border px-4 py-3 flex items-center gap-3 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+        <Link
+          href="/"
+          className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+        >
           ← IKI
         </Link>
         <span className="text-muted-foreground">/</span>
         <h1 className="font-semibold text-sm">Knowledge Copilot</h1>
+        <Link
+          href="/graph"
+          className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Graph Explorer →
+        </Link>
       </header>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 max-w-3xl w-full mx-auto">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold tracking-tight">Ask anything</h2>
               <p className="text-muted-foreground text-sm max-w-sm">
-                Ask questions about your ingested industrial documents. Answers come
-                with source citations and a confidence score.
+                Queries route automatically to vector search, knowledge graph,
+                or both. Answers include inline citations and a confidence score.
               </p>
             </div>
             <div className="flex flex-col gap-2 w-full max-w-sm">
@@ -289,13 +334,12 @@ export default function ChatPage() {
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[85%] space-y-2 ${
+              className={`max-w-[88%] space-y-2 flex flex-col ${
                 msg.role === "user" ? "items-end" : "items-start"
-              } flex flex-col`}
+              }`}
             >
-              {/* Bubble */}
               <div
-                className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                className={`rounded-2xl px-4 py-3 text-sm leading-relaxed w-full ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground rounded-br-sm"
                     : "bg-muted text-foreground rounded-bl-sm border border-border"
@@ -322,10 +366,23 @@ export default function ChatPage() {
                 )}
               </div>
 
+              {/* Subgraph visualization */}
+              {msg.role === "assistant" &&
+                msg.subgraph &&
+                msg.subgraph.nodes.length > 0 && (
+                  <SubgraphView
+                    data={msg.subgraph}
+                    height={220}
+                    width={500}
+                    className="max-w-full"
+                  />
+                )}
+
               {/* Metadata row */}
               {msg.role === "assistant" && !msg.streaming && msg.confidence && (
                 <div className="flex flex-wrap items-center gap-2 px-1">
                   <ConfidenceBadge level={msg.confidence} />
+                  {msg.mode && <ModeBadge mode={msg.mode} />}
                   {msg.latencyMs && (
                     <span className="text-xs text-muted-foreground tabular-nums">
                       {(msg.latencyMs / 1000).toFixed(1)}s
@@ -335,17 +392,15 @@ export default function ChatPage() {
               )}
 
               {/* Sources */}
-              {msg.role === "assistant" && msg.sources && msg.sources.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 px-1">
-                  {msg.sources.map((s) => (
-                    <SourceChip
-                      key={s.n}
-                      source={s}
-                      onClick={setActiveSource}
-                    />
-                  ))}
-                </div>
-              )}
+              {msg.role === "assistant" &&
+                msg.sources &&
+                msg.sources.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 px-1">
+                    {msg.sources.map((s) => (
+                      <SourceChip key={s.n} source={s} onClick={setActiveSource} />
+                    ))}
+                  </div>
+                )}
             </div>
           </div>
         ))}
@@ -353,14 +408,12 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
       <div className="border-t border-border bg-background/80 backdrop-blur-sm px-4 py-3">
         <form
           onSubmit={handleSubmit}
           className="max-w-3xl mx-auto flex gap-2 items-end"
         >
           <Textarea
-            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -379,7 +432,7 @@ export default function ChatPage() {
           </Button>
         </form>
         <p className="text-center text-[10px] text-muted-foreground mt-2 max-w-3xl mx-auto">
-          Answers grounded in ingested documents only · Shift+Enter for newline
+          Queries route to vector · graph · hybrid automatically · Shift+Enter for newline
         </p>
       </div>
 
