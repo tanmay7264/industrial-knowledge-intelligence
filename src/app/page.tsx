@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StatusPanel } from "@/components/status-panel";
 
 export default function Home() {
@@ -22,6 +23,21 @@ export default function Home() {
           Ingest heterogeneous industrial documents and query them with a cited
           RAG copilot backed by a live knowledge graph.
         </p>
+
+        <div className="flex gap-3 mt-2">
+          <Link
+            href="/chat"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
+          >
+            Open Copilot →
+          </Link>
+          <Link
+            href="/ingest"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted px-5 py-2.5 text-sm font-semibold hover:bg-muted/80 transition-colors"
+          >
+            Upload Documents
+          </Link>
+        </div>
       </div>
 
       <StatusPanel />
