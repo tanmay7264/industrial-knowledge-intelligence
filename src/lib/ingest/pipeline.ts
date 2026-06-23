@@ -9,6 +9,7 @@ import {
   deleteByFileHash,
   upsertChunks,
 } from "./qdrant-store";
+import { buildDocumentGraph } from "@/lib/graph/build";
 import type { IngestResult, EntityCounts, ChunkWithEntities } from "./types";
 
 const ZERO_COUNTS: EntityCounts = {
@@ -73,6 +74,13 @@ export async function ingestFile(
 
     // Store in Qdrant
     await upsertChunks(chunksWithEntities, vectors);
+
+    // Build knowledge graph (best-effort — Neo4j being down must not fail ingestion)
+    try {
+      await buildDocumentGraph(chunksWithEntities, fileName, fileHash, docId);
+    } catch {
+      // Graph build failed; vector index is still complete
+    }
 
     return {
       fileName,

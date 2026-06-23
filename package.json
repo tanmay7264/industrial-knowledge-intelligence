@@ -10,7 +10,8 @@
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "build:graph": "tsx scripts/build-graph.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.42",
@@ -30,6 +31,7 @@
     "pdfjs-dist": "^6.0.227",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-force-graph-2d": "^1.29.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "shadcn": "^4.11.0",
