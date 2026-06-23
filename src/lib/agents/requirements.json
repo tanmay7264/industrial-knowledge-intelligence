@@ -1,0 +1,140 @@
+[
+  {
+    "id": "FIRE-01",
+    "requirementText": "Fixed water spray (deluge) systems shall be provided for cooling of pressure storage vessels containing LPG and other flammable liquids, with a design application rate of at least 10.2 litres per minute per square metre of vessel surface area.",
+    "source": "OISD-STD-116",
+    "category": "Fire Protection"
+  },
+  {
+    "id": "FIRE-02",
+    "requirementText": "Fire water storage shall provide for the single largest fire risk for a minimum aggregate duration of 4 hours, with two pumps (one electric and one diesel driven) each capable of meeting the full design demand.",
+    "source": "OISD-STD-116",
+    "category": "Fire Protection"
+  },
+  {
+    "id": "FIRE-03",
+    "requirementText": "Portable and mobile fire extinguishers shall be provided at process units, tank farms and loading gantries, inspected at least once every month and refilled immediately after use.",
+    "source": "OISD-STD-142",
+    "category": "Fire Protection"
+  },
+  {
+    "id": "PV-01",
+    "requirementText": "All pressure vessels shall undergo external visual inspection annually and internal inspection and hydrostatic testing at intervals not exceeding the remaining-life based schedule, with records retained for the life of the equipment.",
+    "source": "OISD-STD-128",
+    "category": "Mechanical Integrity"
+  },
+  {
+    "id": "PV-02",
+    "requirementText": "Pressure relief valves protecting equipment shall be tested and recalibrated at intervals not exceeding 36 months, and set pressures shall not exceed the maximum allowable working pressure of the protected equipment.",
+    "source": "OISD-STD-106",
+    "category": "Mechanical Integrity"
+  },
+  {
+    "id": "PV-03",
+    "requirementText": "Storage and handling of compressed gases shall comply with the Static and Mobile Pressure Vessels (Unfired) Rules, including valid licences from the Petroleum and Explosives Safety Organisation for storage installations.",
+    "source": "SMPV (Unfired) Rules / PESO",
+    "category": "Statutory Licensing"
+  },
+  {
+    "id": "PSM-01",
+    "requirementText": "A documented Management of Change procedure shall be in place to review and authorise any change to process chemicals, technology, equipment or procedures before implementation, including a hazard review and update of affected documentation.",
+    "source": "OISD-GDN-178",
+    "category": "Process Safety Management"
+  },
+  {
+    "id": "PSM-02",
+    "requirementText": "A Process Hazard Analysis (such as HAZOP) shall be conducted for new facilities and revalidated at intervals not exceeding 5 years for existing facilities, with recommendations tracked to closure.",
+    "source": "OISD-GDN-178",
+    "category": "Process Safety Management"
+  },
+  {
+    "id": "PSM-03",
+    "requirementText": "A Permit to Work system shall control all non-routine and hazardous maintenance activities including hot work, confined space entry and excavation, with permits authorised by competent persons and gas tests recorded before and during the work.",
+    "source": "OISD-STD-105",
+    "category": "Process Safety Management"
+  },
+  {
+    "id": "PSM-04",
+    "requirementText": "Hot work in classified hazardous areas shall be permitted only after gas testing confirms the hydrocarbon concentration is below 1 percent of the Lower Explosive Limit, with continuous monitoring maintained throughout the activity.",
+    "source": "OISD-STD-105",
+    "category": "Process Safety Management"
+  },
+  {
+    "id": "ESP-01",
+    "requirementText": "An on-site emergency / disaster management plan shall be documented, approved and tested through mock drills conducted at least once every quarter, with learnings recorded and acted upon.",
+    "source": "OISD-GDN-206",
+    "category": "Emergency Preparedness"
+  },
+  {
+    "id": "ESP-02",
+    "requirementText": "Audible and visual alarm systems and a public address system shall be provided to alert all personnel in the event of an emergency, and these systems shall be tested periodically.",
+    "source": "OISD-GDN-206",
+    "category": "Emergency Preparedness"
+  },
+  {
+    "id": "ESP-03",
+    "requirementText": "Adequate assembly points and clearly marked escape routes shall be designated and kept unobstructed, and the headcount procedure shall be exercised during emergency drills.",
+    "source": "Factory Act 1948",
+    "category": "Emergency Preparedness"
+  },
+  {
+    "id": "ENV-01",
+    "requirementText": "Continuous emission monitoring systems shall be installed on stacks and connected to the State Pollution Control Board, with emissions maintained within the consented limits under the Air (Prevention and Control of Pollution) Act.",
+    "source": "CPCB / Air Act 1981",
+    "category": "Environmental"
+  },
+  {
+    "id": "ENV-02",
+    "requirementText": "Effluent discharged from the facility shall conform to the prescribed standards, and a valid Consent to Operate shall be obtained and renewed under the Water (Prevention and Control of Pollution) Act.",
+    "source": "CPCB / Water Act 1974",
+    "category": "Environmental"
+  },
+  {
+    "id": "ENV-03",
+    "requirementText": "Hazardous wastes shall be stored, transported and disposed of through authorised handlers, with manifests maintained in accordance with the Hazardous and Other Wastes (Management and Transboundary Movement) Rules.",
+    "source": "Hazardous Waste Rules 2016",
+    "category": "Environmental"
+  },
+  {
+    "id": "OHS-01",
+    "requirementText": "Personnel shall be provided with appropriate personal protective equipment including flame-resistant clothing, safety helmets, and hydrogen sulphide detectors where applicable, and its use shall be enforced in operating areas.",
+    "source": "Factory Act 1948",
+    "category": "Occupational Health & Safety"
+  },
+  {
+    "id": "OHS-02",
+    "requirementText": "Workers exposed to hazardous processes shall undergo pre-employment and periodic medical examinations at intervals prescribed under the Factories Act, with occupational health records maintained.",
+    "source": "Factory Act 1948",
+    "category": "Occupational Health & Safety"
+  },
+  {
+    "id": "OHS-03",
+    "requirementText": "Safety training and induction shall be imparted to all employees and contractor workmen before deployment, and refresher training shall be conducted periodically with attendance records maintained.",
+    "source": "OISD-GDN-192",
+    "category": "Occupational Health & Safety"
+  },
+  {
+    "id": "MI-01",
+    "requirementText": "A risk-based inspection programme shall be implemented for piping and static equipment, with thickness measurements taken at designated condition monitoring locations and corrosion rates trended.",
+    "source": "OISD-STD-130",
+    "category": "Mechanical Integrity"
+  },
+  {
+    "id": "MI-02",
+    "requirementText": "Above-ground hydrocarbon storage tanks shall be inspected in-service and out-of-service per a documented schedule, including floor settlement surveys and floating roof seal inspections.",
+    "source": "OISD-STD-129",
+    "category": "Mechanical Integrity"
+  },
+  {
+    "id": "ELE-01",
+    "requirementText": "Electrical equipment installed in classified hazardous areas shall be of a certified flameproof or intrinsically safe type appropriate to the area classification, and shall be inspected and maintained per the hazardous area maintenance schedule.",
+    "source": "OISD-STD-113",
+    "category": "Electrical Safety"
+  },
+  {
+    "id": "ELE-02",
+    "requirementText": "Earthing and bonding shall be provided for all tanks, pipelines, loading arms and equipment handling flammable fluids to prevent static accumulation, and earth pit resistance shall be measured and recorded annually.",
+    "source": "OISD-STD-113",
+    "category": "Electrical Safety"
+  }
+]
