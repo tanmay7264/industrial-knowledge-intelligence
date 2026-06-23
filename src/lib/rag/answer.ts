@@ -39,24 +39,33 @@ export function sourcesFromChunks(chunks: RetrievedChunk[]): Source[] {
   }));
 }
 
-export function buildSystemPrompt(chunks: RetrievedChunk[]): string {
-  const contextBlocks = chunks
-    .map(
-      (c, i) =>
-        `[${i + 1}] (${c.fileName}, section ${c.pageOrSection})\n${c.text}`
-    )
-    .join("\n\n---\n\n");
+export function buildSystemPrompt(
+  chunks: RetrievedChunk[],
+  graphContext?: string
+): string {
+  const header = `You are an expert industrial knowledge assistant for an IKI (Industrial Knowledge Intelligence) system.
 
-  return `You are an expert industrial knowledge assistant for an IKI (Industrial Knowledge Intelligence) system.
-
-Answer the user's question using ONLY the numbered context passages provided below.
+Answer the user's question using ONLY the context provided below.
 
 RULES:
 1. Cite every factual claim with its source number inline, e.g. [1] or [2][3].
-2. If the context passages do not contain enough information to answer, respond with exactly: "Not found in the knowledge base"
-3. Never fabricate information, numbers, or references not present in the context.
-4. Be precise and concise. Prefer bullet points for lists of facts.
+2. If the context does not contain enough information to answer, respond with exactly: "Not found in the knowledge base"
+3. Never fabricate information not present in the context.
+4. Be precise and concise. Prefer bullet points for lists of facts.`;
 
-CONTEXT:
-${contextBlocks}`;
+  const docSection =
+    chunks.length > 0
+      ? `\n\nDOCUMENT CONTEXT:\n${chunks
+          .map(
+            (c, i) =>
+              `[${i + 1}] (${c.fileName}, section ${c.pageOrSection})\n${c.text}`
+          )
+          .join("\n\n---\n\n")}`
+      : "";
+
+  const graphSection = graphContext
+    ? `\n\n${graphContext}`
+    : "";
+
+  return `${header}${docSection}${graphSection}`;
 }

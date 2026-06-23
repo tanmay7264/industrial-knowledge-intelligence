@@ -1,13 +1,9 @@
 import { streamText } from "ai";
 import { getChatModel } from "@/lib/ai/provider";
 import { embedSingle } from "@/lib/ai/embeddings";
-import { retrieveChunks } from "@/lib/rag/retrieve";
-import {
-  buildSystemPrompt,
-  computeConfidence,
-  sourcesFromChunks,
-} from "@/lib/rag/answer";
+import { computeConfidence } from "@/lib/rag/answer";
 import { cacheGet, cacheSet } from "@/lib/rag/cache";
+import { routedRetrieve } from "@/lib/rag/router";
 import type { ChatAnswer, ConfidenceLevel } from "@/lib/rag/answer";
 
 export const runtime = "nodejs";
@@ -31,17 +27,25 @@ export async function POST(req: Request) {
   const cached = cacheGet(queryEmbedding);
 
   if (cached) {
-    return Response.json({ ...cached, cached: true, latencyMs: Date.now() - startMs });
+    return Response.json({
+      ...cached,
+      cached: true,
+      latencyMs: Date.now() - startMs,
+    });
   }
 
-  const chunks = await retrieveChunks(query, { docTypeFilter });
-  const sources = sourcesFromChunks(chunks);
-  const scores = chunks.map((c) => c.score);
-  const systemPrompt = buildSystemPrompt(chunks);
+  const { chunks, subgraph, mode, systemPrompt, sources, scores } =
+    await routedRetrieve(query, queryEmbedding, docTypeFilter);
 
   const stream = new ReadableStream({
     async start(controller) {
-      controller.enqueue(encode("meta", { sources }));
+      controller.enqueue(
+        encode("meta", {
+          sources,
+          subgraph: subgraph && subgraph.nodes.length > 0 ? subgraph : null,
+          mode,
+        })
+      );
 
       let fullText = "";
 
@@ -69,7 +73,7 @@ export async function POST(req: Request) {
       const confidence: ConfidenceLevel = computeConfidence(scores, abstained);
       const latencyMs = Date.now() - startMs;
 
-      controller.enqueue(encode("done", { confidence, latencyMs, abstained }));
+      controller.enqueue(encode("done", { confidence, latencyMs, abstained, mode }));
 
       const answer: ChatAnswer = {
         answer: fullText,
