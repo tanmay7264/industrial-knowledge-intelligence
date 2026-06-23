@@ -9,17 +9,26 @@ services:
     restart: unless-stopped
 
   neo4j:
-    image: neo4j:5-community
+    image: neo4j:community
     ports:
       - "7474:7474"
       - "7687:7687"
     environment:
-      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-changeme}
+      NEO4J_AUTH: neo4j/password
       NEO4J_PLUGINS: '["apoc"]'
     volumes:
       - neo4j-data:/data
     restart: unless-stopped
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
 volumes:
   qdrant-data:
   neo4j-data:
+  redis-data:
