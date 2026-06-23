@@ -6,34 +6,22 @@ import { retrieveSubgraph } from "@/lib/graph/retrieve";
 import { loadRequirements } from "./requirements";
 import type { Requirement } from "./requirements";
 import type { RetrievedChunk } from "@/lib/rag/retrieve";
+import type {
+  Verdict,
+  EvidenceCitation,
+  RequirementVerdict,
+  ComplianceReport,
+} from "./compliance-types";
 
-export type Verdict = "COVERED" | "PARTIAL" | "GAP" | "UNKNOWN";
-
-export interface EvidenceCitation {
-  n: number;
-  fileName: string;
-  page: number | string;
-  snippet: string;
-  score: number;
-}
-
-export interface RequirementVerdict {
-  requirementId: string;
-  requirementText: string;
-  source: string;
-  category: string;
-  verdict: Verdict;
-  rationale: string;
-  evidence: EvidenceCitation[];
-  topScore: number;
-}
-
-export interface ComplianceReport {
-  generatedAt: string;
-  totalRequirements: number;
-  summary: Record<Verdict, number>;
-  results: RequirementVerdict[];
-}
+export type {
+  Verdict,
+  EvidenceCitation,
+  RequirementVerdict,
+  ComplianceReport,
+  AuditPackItem,
+  AuditPack,
+} from "./compliance-types";
+export { buildAuditPack } from "./audit-pack";
 
 // Retrieval / judging tuning
 const TOP_K = 6;

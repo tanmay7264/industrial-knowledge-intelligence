@@ -11,12 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { buildAuditPack } from "@/lib/agents/audit-pack";
 import type {
   ComplianceReport,
   RequirementVerdict,
   Verdict,
   EvidenceCitation,
-} from "@/lib/agents/compliance";
+} from "@/lib/agents/compliance-types";
 
 const VERDICTS: Verdict[] = ["COVERED", "PARTIAL", "GAP", "UNKNOWN"];
 
@@ -165,6 +166,25 @@ export default function CompliancePage() {
     }
   }, []);
 
+  const coveredCount = report?.summary.COVERED ?? 0;
+
+  const exportAuditPack = useCallback(() => {
+    if (!report) return;
+    const pack = buildAuditPack(report, new Date().toISOString());
+    const blob = new Blob([JSON.stringify(pack, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `iki-audit-pack-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, [report]);
+
   const categories = useMemo(
     () =>
       report
@@ -221,6 +241,21 @@ export default function CompliancePage() {
             <span className="text-[11px] text-muted-foreground hidden sm:inline">
               Last scan: {new Date(report.generatedAt).toLocaleString()}
             </span>
+          )}
+          {report && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={exportAuditPack}
+              disabled={coveredCount === 0}
+              title={
+                coveredCount === 0
+                  ? "No COVERED requirements to export"
+                  : `Export ${coveredCount} certified requirement(s)`
+              }
+            >
+              Export Audit Pack
+            </Button>
           )}
           <Button size="sm" onClick={runScan} disabled={scanning}>
             {scanning ? "Scanning…" : report ? "Re-run scan" : "Run scan"}
