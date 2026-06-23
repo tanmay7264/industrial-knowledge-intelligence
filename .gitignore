@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.next/
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# AI coding assistant files — NEVER commit
+CLAUDE.md
+.claude/
+.cursorrules
+.cursor/
+.ai-*
+.aider*
+.copilot*
+.codeium*
+.continue/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+docker-data/
+
+# Misc
+*.log
