@@ -38,6 +38,12 @@ export default function Home() {
             Graph Explorer
           </Link>
           <Link
+            href="/compliance"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted px-5 py-2.5 text-sm font-semibold hover:bg-muted/80 transition-colors"
+          >
+            Compliance
+          </Link>
+          <Link
             href="/ingest"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted px-5 py-2.5 text-sm font-semibold hover:bg-muted/80 transition-colors"
           >
