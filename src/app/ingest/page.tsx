@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { TopNav } from "@/components/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -118,7 +117,6 @@ export default function IngestPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <TopNav />
       <div className="max-w-5xl mx-auto w-full p-6 sm:p-8 space-y-8">
         {/* Header */}
         <div className="space-y-1">

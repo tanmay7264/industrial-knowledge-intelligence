@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TopNav } from "@/components/top-nav";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -216,7 +215,6 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <TopNav />
 
       <div className="max-w-3xl mx-auto w-full p-4 sm:p-6 space-y-6">
         {/* Intro */}

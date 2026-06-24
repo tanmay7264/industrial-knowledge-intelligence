@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { TopNav } from "@/components/top-nav";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const MermaidDiagram = dynamic(
@@ -82,7 +81,6 @@ const COMPONENTS: { layer: string; responsibility: string }[] = [
 export default function ArchitecturePage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <TopNav />
 
       <div className="max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-8">
         <div className="space-y-1">
