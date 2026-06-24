@@ -9,7 +9,9 @@ function createClient(): Redis {
     lazyConnect: true,
     connectTimeout: 3_000,
     maxRetriesPerRequest: 2,
-    enableOfflineQueue: false,
+    // Queue the first command until the lazy connection is ready, otherwise the
+    // initial cache read/write is rejected before the socket finishes connecting.
+    enableOfflineQueue: true,
   });
 }
 

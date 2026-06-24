@@ -31,10 +31,12 @@ async function pingRedis(): Promise<Status> {
     lazyConnect: true,
     connectTimeout: 2_000,
     maxRetriesPerRequest: 1,
-    enableOfflineQueue: false,
+    // Fail fast when the server is genuinely unreachable instead of reconnecting
+    retryStrategy: () => null,
   });
 
   try {
+    await redis.connect();
     await redis.ping();
     return "ok";
   } catch {
