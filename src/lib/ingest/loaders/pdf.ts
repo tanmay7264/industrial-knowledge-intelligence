@@ -3,14 +3,25 @@ import type { LoaderResult } from "../types";
 // Pages with fewer characters than this are treated as scanned/image-based
 const SPARSE_THRESHOLD = 80;
 
-// Lazy singleton so GlobalWorkerOptions is only set once per process
+// Lazy singleton so GlobalWorkerOptions is only set once per process.
+// The legacy build runs in Node.js without browser globals (DOMMatrix etc.);
+// the default build throws "DOMMatrix is not defined" on the server.
 let pdfjsCache: Promise<typeof import("pdfjs-dist")> | null = null;
 
 async function getPdfJs() {
   if (!pdfjsCache) {
-    pdfjsCache = import("pdfjs-dist").then((lib) => {
-      // No worker needed in a Node.js server context
-      lib.GlobalWorkerOptions.workerSrc = "";
+    pdfjsCache = (
+      import("pdfjs-dist/legacy/build/pdf.mjs") as Promise<
+        typeof import("pdfjs-dist")
+      >
+    ).then(async (lib) => {
+      // Run the worker on the main thread in Node by pointing it at the
+      // legacy worker module (an empty workerSrc throws "fake worker failed")
+      const { createRequire } = await import("module");
+      const require = createRequire(import.meta.url);
+      lib.GlobalWorkerOptions.workerSrc = require.resolve(
+        "pdfjs-dist/legacy/build/pdf.worker.mjs"
+      );
       return lib;
     });
   }
