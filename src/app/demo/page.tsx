@@ -1,5 +1,7 @@
 "use client";
 
+import { TopNav } from "@/components/top-nav";
+
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -215,7 +217,7 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-
+      <TopNav />
       <div className="max-w-3xl mx-auto w-full p-4 sm:p-6 space-y-6">
         {/* Intro */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">

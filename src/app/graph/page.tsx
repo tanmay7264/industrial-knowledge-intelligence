@@ -1,5 +1,7 @@
 "use client";
 
+import { TopNav } from "@/components/top-nav";
+
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
@@ -92,6 +94,7 @@ export default function GraphPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
+      <TopNav />
 
       {/* Search toolbar */}
       <div className="border-b border-border px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-background/80 backdrop-blur-sm">

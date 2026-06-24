@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { TopNav } from "@/components/top-nav";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -124,8 +125,7 @@ function StatCard({
       <div className="flex items-center gap-1.5">
         <div className="h-1 flex-1 rounded-full bg-muted overflow-hidden">
           <div
-            style={{ background: m.chart }}
-            style={{ width: `${pct}%` }}
+            style={{ background: m.chart, width: `${pct}%` }}
           />
         </div>
         <span className="text-[10px] font-medium text-muted-foreground tabular-nums">{pct}%</span>
@@ -367,6 +367,7 @@ export default function CompliancePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
+      <TopNav />
       {/* ── Page header ── */}
       <div className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b border-border/40 bg-background/80 backdrop-blur-md px-6">
         <div className="flex items-center gap-2.5">

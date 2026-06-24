@@ -1,5 +1,7 @@
 "use client";
 
+import { TopNav } from "@/components/top-nav";
+
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -117,6 +119,7 @@ export default function IngestPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <TopNav />
       <div className="max-w-5xl mx-auto w-full p-6 sm:p-8 space-y-8">
         {/* Header */}
         <div className="space-y-1">
