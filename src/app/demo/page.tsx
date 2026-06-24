@@ -181,10 +181,19 @@ export default function DemoPage() {
         );
         setChatResults((prev) => ({ ...prev, [step.id]: res }));
       } else {
-        const r = await fetch("/api/compliance/scan", { method: "POST" });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error ?? `HTTP ${r.status}`);
-        setReport(data.report);
+        // Prefer a cached report so the slowest step replays instantly on stage;
+        // only run a fresh scan if nothing is cached yet.
+        const cached = await fetch("/api/compliance/scan")
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null);
+        if (cached?.report) {
+          setReport(cached.report);
+        } else {
+          const r = await fetch("/api/compliance/scan", { method: "POST" });
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error ?? `HTTP ${r.status}`);
+          setReport(data.report);
+        }
       }
       setStatus(step.id, "done");
     } catch {
