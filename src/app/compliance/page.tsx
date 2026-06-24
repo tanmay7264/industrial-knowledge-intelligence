@@ -44,40 +44,40 @@ const VERDICT_META: Record<
   { color: string; bg: string; border: string; icon: React.ElementType; chart: string }
 > = {
   COVERED: {
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/25",
+    color: "text-emerald-700",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
     icon: ShieldCheck,
     chart: "#10b981",
   },
   PARTIAL: {
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/25",
+    color: "text-amber-700",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
     icon: AlertTriangle,
     chart: "#f59e0b",
   },
   GAP: {
-    color: "text-red-400",
-    bg: "bg-red-500/10",
-    border: "border-red-500/25",
+    color: "text-red-700",
+    bg: "bg-red-50",
+    border: "border-red-200",
     icon: AlertCircle,
     chart: "#ef4444",
   },
   UNKNOWN: {
-    color: "text-slate-400",
-    bg: "bg-slate-500/10",
-    border: "border-slate-500/25",
+    color: "text-slate-600",
+    bg: "bg-slate-100",
+    border: "border-slate-200",
     icon: HelpCircle,
     chart: "#64748b",
   },
 };
 
 const VERDICT_BADGE: Record<Verdict, string> = {
-  COVERED: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25",
-  PARTIAL: "bg-amber-500/15 text-amber-400 border border-amber-500/25",
-  GAP: "bg-red-500/15 text-red-400 border border-red-500/25",
-  UNKNOWN: "bg-slate-500/15 text-slate-400 border border-slate-500/25",
+  COVERED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  PARTIAL: "bg-amber-50 text-amber-700 border border-amber-200",
+  GAP: "bg-red-50 text-red-700 border border-red-200",
+  UNKNOWN: "bg-slate-100 text-slate-600 border border-slate-200",
 };
 
 const VERDICT_RANK: Record<Verdict, number> = {
@@ -124,7 +124,7 @@ function StatCard({
       <div className="flex items-center gap-1.5">
         <div className="h-1 flex-1 rounded-full bg-muted overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${m.color.replace("text-", "bg-")}`}
+            style={{ background: m.chart }}
             style={{ width: `${pct}%` }}
           />
         </div>
