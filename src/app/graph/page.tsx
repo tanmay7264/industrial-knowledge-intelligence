@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
+import { toast } from "sonner";
+import { TopNav } from "@/components/top-nav";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SubgraphData, NodeType } from "@/lib/graph/types";
@@ -71,7 +72,11 @@ export default function GraphPage() {
       const data: SubgraphData = await res.json();
       setSubgraph(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Graph query failed");
+      const message = err instanceof Error ? err.message : "Graph query failed";
+      setError(message);
+      toast.error("Graph query failed", {
+        description: "Make sure Neo4j is running and documents are ingested.",
+      });
     } finally {
       setLoading(false);
     }
@@ -88,18 +93,14 @@ export default function GraphPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border px-6 py-3 flex items-center gap-4 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-        >
-          ← IKI
-        </Link>
-        <span className="text-muted-foreground">/</span>
-        <h1 className="font-semibold text-sm">Graph Explorer</h1>
+      <TopNav />
 
-        <form onSubmit={handleSubmit} className="flex gap-2 ml-4 flex-1 max-w-lg">
+      {/* Search toolbar */}
+      <div className="border-b border-border px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-background/80 backdrop-blur-sm">
+        <h2 className="font-semibold text-sm shrink-0 hidden sm:block">
+          Graph Explorer
+        </h2>
+        <form onSubmit={handleSubmit} className="flex gap-2 flex-1 max-w-lg">
           <input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
@@ -110,14 +111,7 @@ export default function GraphPage() {
             {loading ? "…" : "Explore"}
           </Button>
         </form>
-
-        <Link
-          href="/chat"
-          className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Copilot →
-        </Link>
-      </header>
+      </div>
 
       {/* Main */}
       <div className="flex flex-1 overflow-hidden">

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { toast } from "sonner";
+import { TopNav } from "@/components/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,16 +75,26 @@ export default function IngestPage() {
         const res = await fetch("/api/ingest", { method: "POST", body });
         const data: { results: IngestResult[] } = await res.json();
 
+        let failures = 0;
         for (const result of data.results) {
+          if (result.status === "error") failures++;
           updateRow(result.fileName, {
             status: result.status,
             result,
+          });
+        }
+        if (failures > 0) {
+          toast.error(`${failures} file(s) failed to ingest`, {
+            description: "Check the queue for per-file status.",
           });
         }
       } catch {
         incoming.forEach((f) =>
           updateRow(f.name, { status: "error", result: undefined })
         );
+        toast.error("Ingestion request failed", {
+          description: "Is the dev server running and a model key configured?",
+        });
       }
     },
     [rows, updateRow]
@@ -105,8 +117,9 @@ export default function IngestPage() {
   const processing = rows.some((r) => r.status === "processing");
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto p-8 space-y-8">
+    <div className="min-h-screen flex flex-col bg-background">
+      <TopNav />
+      <div className="max-w-5xl mx-auto w-full p-6 sm:p-8 space-y-8">
         {/* Header */}
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Document Ingestion</h1>

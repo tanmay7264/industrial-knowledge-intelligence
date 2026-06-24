@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import Link from "next/link";
+import { toast } from "sonner";
+import { TopNav } from "@/components/top-nav";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -159,8 +160,14 @@ export default function CompliancePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
       setReport(data.report);
+      const s = data.report.summary;
+      toast.success("Compliance scan complete", {
+        description: `${s.COVERED} covered · ${s.PARTIAL} partial · ${s.GAP} gap · ${s.UNKNOWN} unknown`,
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Scan failed");
+      const message = err instanceof Error ? err.message : "Scan failed";
+      setError(message);
+      toast.error("Compliance scan failed", { description: message });
     } finally {
       setScanning(false);
     }
@@ -183,6 +190,9 @@ export default function CompliancePage() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    toast.success("Audit pack exported", {
+      description: `${pack.certifiedCount} certified requirement(s) written to ${a.download}`,
+    });
   }, [report]);
 
   const categories = useMemo(
@@ -225,17 +235,14 @@ export default function CompliancePage() {
   }, [report, verdictFilter, categoryFilter, search, sortKey]);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border px-4 sm:px-6 py-3 flex items-center gap-3 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-        >
-          ← IKI
-        </Link>
-        <span className="text-muted-foreground">/</span>
-        <h1 className="font-semibold text-sm">Compliance Dashboard</h1>
+    <div className="min-h-screen flex flex-col bg-background">
+      <TopNav />
+
+      {/* Toolbar */}
+      <div className="border-b border-border px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-background/80 backdrop-blur-sm">
+        <h2 className="font-semibold text-sm hidden sm:block">
+          Compliance Dashboard
+        </h2>
         <div className="ml-auto flex items-center gap-2">
           {report && (
             <span className="text-[11px] text-muted-foreground hidden sm:inline">
@@ -261,9 +268,9 @@ export default function CompliancePage() {
             {scanning ? "Scanning…" : report ? "Re-run scan" : "Run scan"}
           </Button>
         </div>
-      </header>
+      </div>
 
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+      <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 space-y-6">
         {/* Intro */}
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">
