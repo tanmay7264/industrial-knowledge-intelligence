@@ -19,7 +19,8 @@ export function MermaidDiagram({ chart, id = "diagram" }: MermaidDiagramProps) {
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,
-          theme: "neutral",
+          theme: "dark",
+          darkMode: true,
           securityLevel: "loose",
           flowchart: { curve: "basis", useMaxWidth: true },
         });

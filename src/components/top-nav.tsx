@@ -19,7 +19,7 @@ export function TopNav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 h-12 shrink-0 border-b border-border bg-background/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 h-12 shrink-0 border-b border-border glass">
       <div className="flex h-full items-center gap-1 px-3 sm:px-4">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2 pr-2 shrink-0">
@@ -41,7 +41,7 @@ export function TopNav() {
                 href={item.href}
                 className={`rounded-md px-2.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
                   active
-                    ? "bg-muted text-foreground"
+                    ? "bg-primary/15 text-primary ring-1 ring-primary/30"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 }`}
               >
@@ -55,7 +55,7 @@ export function TopNav() {
         <div className="ml-auto flex items-center gap-1 shrink-0">
           <Link
             href="/demo"
-            className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap glow-primary"
           >
             Guided Demo
           </Link>
