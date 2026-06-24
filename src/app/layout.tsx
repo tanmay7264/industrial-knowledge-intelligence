@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "IKI — Industrial Knowledge Intelligence",
   description:
-    "Turn scattered industrial documents into a cited, graph-aware knowledge copilot with automated compliance gap detection.",
+    "Turn scattered industrial documents into a cited, graph-aware question-answering system with automated compliance gap detection.",
 };
 
 export default function RootLayout({

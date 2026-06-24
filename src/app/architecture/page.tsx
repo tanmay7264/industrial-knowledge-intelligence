@@ -56,7 +56,7 @@ const ARCHITECTURE_CHART = `flowchart TB
     P -.-> CA
 
     subgraph UI["Next.js App Router UI"]
-        UIc["/chat copilot"]
+        UIc["/chat Q&A"]
         UIg["/graph explorer"]
         UIk["/compliance dashboard"]
         UId["/demo guided flow"]

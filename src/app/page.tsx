@@ -24,10 +24,10 @@ const PROBLEMS = [
 
 const CAPABILITIES = [
   {
-    title: "Cited Copilot",
+    title: "Cited Q&A",
     body: "Ask in plain language, get answers grounded in your documents with inline citations and a confidence score.",
     href: "/chat",
-    cta: "Open Copilot",
+    cta: "Open Q&A",
   },
   {
     title: "Knowledge Graph",
@@ -64,8 +64,9 @@ export default function Home() {
 
         <p className="max-w-xl text-muted-foreground text-lg leading-relaxed">
           IKI ingests heterogeneous industrial documents — PDFs, scans,
-          spreadsheets, email — and makes them queryable through a cited copilot,
-          a live knowledge graph, and an automated compliance auditor.
+          spreadsheets, email — and makes them queryable through cited
+          question-answering, a live knowledge graph, and an automated compliance
+          auditor.
         </p>
 
         <div className="flex gap-3 mt-2 flex-wrap justify-center">
@@ -79,7 +80,7 @@ export default function Home() {
             href="/chat"
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted px-6 py-3 text-sm font-semibold hover:bg-muted/80 transition-colors"
           >
-            Open Copilot →
+            Open Q&A →
           </Link>
         </div>
       </section>

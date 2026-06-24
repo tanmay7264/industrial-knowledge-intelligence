@@ -9,7 +9,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/chat", label: "Copilot" },
+  { href: "/chat", label: "Ask" },
   { href: "/graph", label: "Graph" },
   { href: "/compliance", label: "Compliance" },
   { href: "/ingest", label: "Ingest" },

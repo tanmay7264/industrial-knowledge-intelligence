@@ -258,11 +258,11 @@ async function mapWithConcurrency<T, R>(
   fn: (item: T) => Promise<R>
 ): Promise<R[]> {
   const results = new Array<R>(items.length);
-  let cursor = 0;
+  let nextIndex = 0;
 
   async function worker(): Promise<void> {
-    while (cursor < items.length) {
-      const i = cursor++;
+    while (nextIndex < items.length) {
+      const i = nextIndex++;
       results[i] = await fn(items[i]);
     }
   }

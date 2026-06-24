@@ -256,7 +256,7 @@ export default function ChatPage() {
           }
         }
       } catch {
-        toast.error("Couldn't reach the copilot", {
+        toast.error("Couldn't reach the Q&A service", {
           description:
             "Check that the dev server, Qdrant and a valid model key are configured.",
         });

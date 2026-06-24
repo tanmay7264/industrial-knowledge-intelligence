@@ -1,8 +1,8 @@
 # IKI Architecture
 
 Industrial Knowledge Intelligence (IKI) turns heterogeneous plant documents into a
-queryable knowledge system with three retrieval surfaces — a cited copilot, a
-knowledge graph, and a compliance auditor — over a shared corpus.
+queryable knowledge system with three retrieval surfaces — cited question-answering,
+a knowledge graph, and a compliance auditor — over a shared corpus.
 
 ## System diagram
 
@@ -53,7 +53,7 @@ flowchart TB
     P -.-> CA
 
     subgraph UI["Next.js App Router UI"]
-        UIc["/chat copilot"]
+        UIc["/chat Q&A"]
         UIg["/graph explorer"]
         UIk["/compliance dashboard"]
         UId["/demo guided flow"]

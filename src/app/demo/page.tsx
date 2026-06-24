@@ -68,7 +68,7 @@ const STEPS: DemoStep[] = [
     query: "What is the resale value of the plant manager's company car?",
     criterion: "Business Impact (trust)",
     caption:
-      "Off-corpus question. The copilot answers “Not found in the knowledge base” instead of inventing — the honesty a safety-critical buyer requires.",
+      "Off-corpus question. IKI answers “Not found in the knowledge base” instead of inventing — the honesty a safety-critical buyer requires.",
   },
   {
     id: "compliance",
