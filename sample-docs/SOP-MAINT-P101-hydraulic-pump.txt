@@ -1,0 +1,37 @@
+STANDARD OPERATING PROCEDURE
+Document No: SOP-MAINT-014  Rev: 3  Effective Date: 2025-02-15
+Title: Preventive Maintenance — Hydraulic Pump P-101
+Owner: Rotating Equipment Section, Maintenance Department
+Quality System Reference: ISO 9001:2015 Clause 7.1.5 (Monitoring and Measuring Resources)
+
+1. PURPOSE
+This procedure defines the preventive maintenance requirements for hydraulic pump
+P-101, the primary feed pump on the Crude Distillation Unit. It ensures reliable
+operation and compliance with the plant mechanical integrity program.
+
+2. SCOPE
+Applies to centrifugal hydraulic pump P-101 and its associated pressure relief
+valve PRV-101A. Related equipment: pressure vessel V-201 (suction drum).
+
+3. MAINTENANCE INTERVALS
+3.1 Lubrication of bearings: every 720 operating hours (monthly).
+3.2 Vibration analysis: quarterly, with readings logged at condition monitoring
+    location CML-P101-3.
+3.3 Mechanical seal inspection: every 2000 operating hours.
+3.4 Full overhaul and internal inspection: every 8000 operating hours, or
+    24 months, whichever comes first.
+3.5 Pressure relief valve PRV-101A recalibration: every 36 months, in line with
+    OISD-STD-106. Set pressure shall not exceed the maximum allowable working
+    pressure of 18 barg.
+
+4. PARAMETERS
+Normal discharge pressure: 14.5 barg. High-pressure alarm: 16 barg. Trip: 17 barg.
+Normal bearing temperature: 65 C. High alarm: 85 C.
+
+5. RESPONSIBLE PERSONNEL
+Maintenance Engineer: R. Mehta. Reliability Inspector: S. Iyer.
+All work is authorised under the plant Permit to Work system per OISD-STD-105.
+
+6. RECORDS
+Completed work orders are retained in the CMMS for the life of the equipment in
+accordance with ISO 9001:2015.

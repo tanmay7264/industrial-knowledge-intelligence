@@ -1,0 +1,32 @@
+ENGINEERING SPECIFICATION
+Document No: SPEC-FIRE-007  Rev: 2  Date: 2024-11-20
+Title: Fixed Water Spray (Deluge) System — LPG Storage Area
+Regulatory Reference: OISD-STD-116, OISD-STD-117
+
+1. SCOPE
+This specification covers the fixed water spray (deluge) system protecting the
+LPG storage bullets B-301 and B-302 and the associated pump house.
+
+2. DESIGN BASIS
+2.1 Water application rate: 10.2 litres per minute per square metre of vessel
+    surface area, in accordance with OISD-STD-116.
+2.2 Fire water storage: sized for the single largest fire risk for an aggregate
+    duration of 4 hours.
+2.3 Fire water pumps: two pumps provided — one electric motor driven and one
+    diesel engine driven — each rated for 100% of design demand (410 m3/hr at
+    7 barg).
+
+3. DETECTION AND ACTUATION
+Heat detectors and manual call points initiate the deluge valve. Audible and
+visual alarms sound in the control room and field per OISD-GDN-206.
+
+4. EQUIPMENT
+Deluge valve DV-301. Fire water pump FWP-01 (electric), FWP-02 (diesel).
+Jockey pump JP-01 maintains ring main pressure.
+
+5. INSPECTION AND TESTING
+Monthly visual inspection of nozzles. Annual full flow test. Portable
+extinguishers in the area inspected monthly per OISD-STD-142.
+
+6. RESPONSIBLE PERSONNEL
+Fire & Safety Officer: P. Rao. Reviewed by Maintenance Engineer R. Mehta.

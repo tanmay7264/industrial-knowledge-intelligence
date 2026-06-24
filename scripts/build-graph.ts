@@ -1,3 +1,4 @@
+import "./load-env";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { buildDocumentGraph } from "../src/lib/graph/build";
 import type { ChunkWithEntities, ExtractedEntities, ChunkMetadata } from "../src/lib/ingest/types";

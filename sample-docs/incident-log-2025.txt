@@ -1,0 +1,22 @@
+MAINTENANCE & INCIDENT LOG — CRUDE DISTILLATION UNIT
+Period: Q1 2025  Maintained by: Shift Operations
+
+2025-01-18 | P-101 | High bearing temperature alarm at 86 C. Pump switched to
+spare P-101S. Bearing found with degraded grease. Re-lubricated per SOP-MAINT-014.
+Logged by: R. Mehta.
+
+2025-02-03 | V-201 | Routine external inspection by S. Iyer. No abnormality.
+Coating breakdown on north head noted for next shutdown. Ref OISD-STD-128.
+
+2025-02-27 | Hot Work | Welding on flare line near LPG area. Permit PTW-2025-0091
+issued under OISD-STD-105. Gas test 0% LEL before and during work. No incident.
+
+2025-03-12 | PRV-101A | Relief valve removed for recalibration. Set pressure
+confirmed at 18 barg, within MAWP. Returned to service. Next due 2028-03.
+
+2025-03-25 | Mock Drill | Quarterly emergency mock drill conducted for the LPG
+storage area. Deluge system DV-301 actuation simulated. Assembly headcount
+completed in 6 minutes. Learnings logged per OISD-GDN-206. Conducted by P. Rao.
+
+2025-03-30 | B-301 | LPG bullet deluge nozzles visually inspected — all clear.
+Monthly check per SPEC-FIRE-007.

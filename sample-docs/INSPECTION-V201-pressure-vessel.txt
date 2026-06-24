@@ -1,0 +1,33 @@
+PRESSURE VESSEL INSPECTION REPORT
+Report No: INSP-2025-0042  Date: 2025-04-09
+Equipment: Pressure Vessel V-201 (Crude Distillation Unit Suction Drum)
+Inspection Code: API 510  Regulatory Reference: OISD-STD-128
+Inspector: S. Iyer (Certified API 510 Inspector)
+
+1. EQUIPMENT DATA
+Tag: V-201. Design pressure: 20 barg. Design temperature: 180 C.
+Maximum Allowable Working Pressure (MAWP): 19.5 barg.
+Year built: 2016. Material: SA-516 Gr 70. Last internal inspection: 2021-03.
+
+2. INSPECTION SCOPE
+External visual inspection (annual) and internal inspection with ultrasonic
+thickness measurement, performed per API 510 and OISD-STD-128. Thickness
+readings taken at all designated condition monitoring locations.
+
+3. FINDINGS
+3.1 Shell minimum measured thickness 11.8 mm against required 10.2 mm — acceptable.
+3.2 Corrosion rate 0.09 mm/year; remaining life estimated at 17 years.
+3.3 Pressure relief valve PSV-201 found within calibration, last tested 2024-06.
+3.4 Minor coating breakdown on the north head — recommend recoating next shutdown.
+
+4. NEXT INSPECTION
+Internal inspection due 2031-04 based on remaining-life calculation. External
+visual due 2026-04.
+
+5. RELATED DOCUMENTS
+Vessel V-201 supplies hydraulic pump P-101 (see SOP-MAINT-014).
+Governed by OISD-STD-128 and inspected to API 510. Quality records maintained
+under ISO 9001:2015.
+
+6. DISPOSITION
+Vessel V-201 is fit for continued service. Approved by: A. Khan, Inspection Lead.

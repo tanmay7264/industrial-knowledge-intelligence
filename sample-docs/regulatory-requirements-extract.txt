@@ -1,0 +1,37 @@
+PLANT COMPLIANCE REFERENCE — REGULATORY REQUIREMENTS EXTRACT
+Document No: COMP-REF-001  Rev: 1  Date: 2025-01-10
+Purpose: Consolidated extract of key statutory and standard requirements
+applicable to the refinery, with the controlling clauses.
+
+FIRE PROTECTION (OISD-STD-116)
+- Fixed water spray systems for pressure storage vessels shall be designed for a
+  minimum application rate of 10.2 L/min/m2 of vessel surface area.
+- Fire water shall be available for the single largest fire risk for at least
+  4 hours, served by one electric and one diesel driven pump.
+
+MECHANICAL INTEGRITY (OISD-STD-128, API 510)
+- Pressure vessels shall undergo annual external visual inspection and internal
+  inspection on a remaining-life schedule, with records retained for vessel life.
+- Pressure relief valves shall be tested and recalibrated at intervals not
+  exceeding 36 months (OISD-STD-106).
+
+PROCESS SAFETY (OISD-STD-105)
+- A Permit to Work system shall control all hot work, confined space entry and
+  excavation. Hot work in classified areas requires gas testing below 1% LEL with
+  continuous monitoring.
+
+EMERGENCY PREPAREDNESS (OISD-GDN-206)
+- An on-site emergency plan shall be documented and tested by mock drills at least
+  once per quarter.
+- Audible/visual alarm and public address systems shall alert all personnel and
+  be tested periodically.
+
+OCCUPATIONAL HEALTH & SAFETY (Factory Act 1948)
+- Personal protective equipment shall be provided and its use enforced in
+  operating areas.
+- Workers in hazardous processes shall undergo periodic medical examination with
+  records maintained.
+
+QUALITY MANAGEMENT (ISO 9001:2015)
+- Documented procedures and retained records shall demonstrate control of
+  inspection, maintenance and calibration activities.

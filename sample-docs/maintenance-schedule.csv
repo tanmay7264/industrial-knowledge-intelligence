@@ -1,0 +1,11 @@
+Equipment Tag,Description,Task,Interval,Regulatory Reference,Responsible
+P-101,Hydraulic feed pump,Bearing lubrication,Monthly (720 hrs),ISO 9001,R. Mehta
+P-101,Hydraulic feed pump,Mechanical seal inspection,2000 hrs,ISO 9001,R. Mehta
+P-101,Hydraulic feed pump,Full overhaul,8000 hrs / 24 months,OISD-STD-128,R. Mehta
+PRV-101A,Pressure relief valve,Recalibration,36 months,OISD-STD-106,S. Iyer
+V-201,Suction drum pressure vessel,External visual inspection,Annual,API 510,S. Iyer
+V-201,Suction drum pressure vessel,Internal inspection,Remaining-life schedule,OISD-STD-128,S. Iyer
+PSV-201,Vessel safety valve,Recalibration,36 months,OISD-STD-106,S. Iyer
+DV-301,LPG deluge valve,Nozzle visual inspection,Monthly,OISD-STD-116,P. Rao
+FWP-02,Diesel fire water pump,Full flow test,Annual,OISD-STD-116,P. Rao
+B-301,LPG storage bullet,Deluge cooling check,Monthly,OISD-STD-116,P. Rao
