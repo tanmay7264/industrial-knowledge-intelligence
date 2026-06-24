@@ -1,0 +1,32 @@
+STANDARD OPERATING PROCEDURE
+Document No: SOP-PROC-009   Rev: 1   Effective Date: 2014-08-01
+Title: Process Hazard Analysis (PHA) Programme
+Owner: Process Safety Section
+Status: ACTIVE  (Note: scheduled review date 2019-08 — review NOT completed)
+
+1. PURPOSE
+This procedure governs how Process Hazard Analysis studies (HAZOP) are planned,
+conducted and revalidated for the refinery process units.
+
+2. WHEN A PHA IS REQUIRED
+2.1 For all new process facilities prior to commissioning.
+2.2 For significant modifications, via the Management of Change process.
+
+3. REVALIDATION INTERVAL
+3.1 Existing facilities shall have their HAZOP studies revalidated at intervals
+    not exceeding TEN (10) YEARS.
+3.2 Basis: OISD-GDN-178 (2002 edition), Section 4.
+
+4. STUDY TEAM
+Led by a qualified facilitator with operations, maintenance and process
+engineering representation.
+
+5. CLOSE-OUT
+Recommendations are logged and reviewed periodically by the Process Safety
+Section.
+
+-----------------------------------------------------------------------------
+DOCUMENT CONTROL NOTE: This procedure has not been updated since Rev 1 (2014).
+The referenced 2002 edition of OISD-GDN-178 has since been revised; the current
+revalidation expectation for existing facilities is a maximum of FIVE (5) YEARS.
+This SOP still mandates a 10-year interval and is overdue for revision.

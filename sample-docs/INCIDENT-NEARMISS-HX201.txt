@@ -1,0 +1,36 @@
+NEAR-MISS INCIDENT REPORT
+Report No: NM-2025-018          Classification: Near Miss (no injury, no release)
+Date/Time of Event: 2025-05-22, 14:05
+Location: Crude Distillation Unit, Heat Exchanger HX-201
+Reported by: D. Souza (Fitter)        Investigated by: S. Iyer
+
+1. SUMMARY
+During preparation to open heat exchanger HX-201 for cleaning, the channel-side
+bleed valve was opened and released a small puff of trapped hydrocarbon vapour.
+Work was stopped immediately. No injury, no sustained release, no fire.
+
+2. SEQUENCE OF EVENTS
+- HX-201 was isolated and believed depressurised per the work pack.
+- The de-pressurisation step had not been independently verified before the bleed
+  valve was cracked open.
+- Residual pressure (~0.4 barg) pushed vapour out of the bleed point.
+- Gas test had been taken at the manway but NOT at the bleed point.
+
+3. IMMEDIATE CAUSE
+Incomplete positive isolation verification before breaking containment on HX-201.
+
+4. ROOT/CONTRIBUTING FACTORS
+- Permit to Work checklist did not require a gas test at every break point
+  (gap against OISD-STD-105 intent on confined/contained energy).
+- Depressurisation confirmation relied on a single reading.
+
+5. RECOMMENDATIONS (tracked to closure per OISD-GDN-206)
+R1. Update the Permit to Work checklist to require gas testing at each point of
+    breaking containment, including bleed and drain valves. Owner: P. Rao.
+R2. Add a two-person verification of depressurisation for shell-and-tube
+    exchangers. Owner: R. Mehta.
+R3. Toolbox talk on stored-energy hazards for HX-201 and similar exchangers.
+
+6. STATUS
+Open. Target closure 2025-06-30. Equipment HX-201 returned to isolation pending
+revised permit.

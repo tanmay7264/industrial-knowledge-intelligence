@@ -22,7 +22,7 @@ Every step is reproducible from the **/demo** page, which runs the four queries 
 
 Show the **landing page** — the three problem stats, then click **Run the Guided Demo**.
 
-## 0:20–0:50 — Cited copilot (UX 15% + Technical Excellence 20%)
+## 0:20–0:50 — Cited Q&A (UX 15% + Technical Excellence 20%)
 
 Run **Step 1 — factual lookup**:
 > *"What is the preventive maintenance interval for the mechanical seal on hydraulic pump P-101?"*
@@ -86,7 +86,18 @@ Open **/architecture**:
 | Business Impact | 25% | 1:30–2:35 honest abstain + compliance gap detection + knowledge-cliff intro |
 | Technical Excellence | 20% | 0:20–0:50 grounded citations + 2:35–3:00 architecture walkthrough |
 | Scalability | 15% | 2:35–3:00 provider seam, dedup, caching, queue, managed stores |
-| UX | 15% | 0:20–0:50 mobile-first cited copilot + the guided demo flow itself |
+| UX | 15% | 0:20–0:50 mobile-first cited Q&A + the guided demo flow itself |
+
+## Closing line — scope discipline (roadmap)
+
+> "We deliberately shipped three capabilities that work end to end rather than five
+> that don't. On the roadmap: full P&ID drawing understanding (today we OCR tag
+> callouts), a maintenance RCA and lessons-learned engine, live CMMS/DMS
+> connectors — already architected for in our scalability design — and capturing
+> tacit knowledge from retiring engineers' conversations. Same foundation, more
+> sources and agents on top."
+
+See [ROADMAP.md](./ROADMAP.md) for the full out-of-scope list and rationale.
 
 ## If you have only 60 seconds
 

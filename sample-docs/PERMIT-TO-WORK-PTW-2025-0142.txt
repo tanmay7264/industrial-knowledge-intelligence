@@ -1,0 +1,33 @@
+PERMIT TO WORK
+Permit No: PTW-2025-0142        Type: Cold Work + Confined Space Entry
+Reference Standard: OISD-STD-105 (Work Permit System)
+Valid: 2025-06-02  06:00  to  2025-06-02  18:00 (one shift)
+
+1. LOCATION & EQUIPMENT
+Unit: Crude Distillation Unit
+Primary equipment: Heat Exchanger HX-201
+Associated tags isolated: P-101, V-201, line 6"-P-1041
+Task: Open HX-201 channel head, hydro-jet tube bundle, inspect, box up.
+
+2. ISOLATION CONFIRMATION
+[x] Electrical isolation (LOTO) applied — tag #LT-0091
+[x] Process isolation — double block and bleed on HX-201 channel side
+[x] Depressurised and drained — VERIFIED BY TWO PERSONS
+[x] Gas test at manway: 0% LEL, O2 20.9%   Time: 06:20
+[x] Gas test at bleed/drain points: 0% LEL  Time: 06:25
+Gas tester (authorised): S. Iyer
+
+3. PRECAUTIONS
+- Continuous atmospheric monitoring inside HX-201 during entry.
+- Standby man stationed at manway; entry log maintained.
+- Rescue plan briefed. Communication every 15 minutes.
+- PPE: full-face, chemical suit, H2S monitor per Factories Act 1948 requirements.
+
+4. AUTHORISATION
+Issued by (Area Authority): P. Rao
+Accepted by (Performing Authority): R. Mehta
+Confined space entrants: D. Souza, A. Kumar
+
+5. CLOSE-OUT
+Permit returned and cancelled at shift end. Area restored. Isolation removed only
+after all entrants signed out and equipment confirmed ready.

@@ -1,0 +1,32 @@
+MAINTENANCE WORK ORDER
+Work Order No: WO-2025-0337       Priority: High
+Raised: 2025-05-14 08:12          Planner: K. Nair
+Equipment Tag: P-101 (Hydraulic Feed Pump, Crude Distillation Unit)
+Related Vessel: V-201 (Suction Drum)
+
+1. WORK DESCRIPTION
+Replace mechanical seal on pump P-101 following high seal-flush temperature trend
+observed during quarterly vibration survey at CML-P101-3. Inspect coupling and
+re-align to OEM tolerance.
+
+2. APPLICABLE PROCEDURES & STANDARDS
+- SOP-MAINT-014 (Preventive Maintenance — Hydraulic Pump P-101).
+- Mechanical integrity inspection per OISD-STD-128, clause 6.3 (in-service
+  inspection of rotating equipment auxiliaries).
+- Pressure relief valve PRV-101A to be left undisturbed; recalibration tracked
+  separately under OISD-STD-106, clause 5.2 (test interval not exceeding 36 months).
+
+3. ISOLATION & SAFETY
+Lockout/tagout applied. Work authorised under Permit to Work per OISD-STD-105.
+Confirm pump isolated from V-201 before seal removal. PPE mandatory.
+
+4. PARTS
+Mechanical seal kit MSK-P101 (OEM). Gasket set GS-14. Seal flush filter.
+
+5. ASSIGNED
+Fitter: D. Souza. Supervisor: R. Mehta. QA hold point: S. Iyer to witness
+re-alignment readings before box-up.
+
+6. CLOSEOUT
+Record final alignment, seal flush pressure (target 1.5 barg above suction),
+and update the equipment history in the CMMS per ISO 9001:2015 clause 7.5.
