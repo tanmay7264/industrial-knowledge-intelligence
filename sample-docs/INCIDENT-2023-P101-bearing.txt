@@ -1,0 +1,32 @@
+INCIDENT REPORT — INC-2023-P101
+Date: 2023-06-22
+Asset: Hydraulic Pump P-101
+Reported by: Maintenance Technician Khan
+Investigator: Engineer Sharma
+
+SYMPTOMS
+- Abnormal noise from drive-end bearing housing
+- Vibration 5.2 mm/s RMS
+- Bearing temperature 68°C
+
+FAILURE MODE
+Premature bearing failure (drive-end)
+
+ROOT CAUSE
+Bearings replaced during scheduled maintenance without post-replacement alignment check.
+Misalignment of 0.12 mm caused accelerated bearing wear within 90 days of installation.
+
+RESOLUTION
+- Bearing replacement (SKF 6312-C3)
+- Alignment check SKIPPED — noted as deviation in work order
+- Repeat failure occurred 2024-09 (see INC-2024-P101)
+
+OUTCOME
+Resolved at time of report — but recurrence within 15 months
+
+LESSONS LEARNED
+- Never close a bearing replacement work order without alignment verification
+- Alignment Procedure Rev B now mandatory for all P-101 bearing work
+- Audit finding AUDIT-2024-MAINT-014 raised against this gap
+
+Document type: incident_report

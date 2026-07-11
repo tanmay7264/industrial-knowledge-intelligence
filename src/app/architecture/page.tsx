@@ -1,7 +1,5 @@
 "use client";
 
-import { TopNav } from "@/components/top-nav";
-
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -82,36 +80,35 @@ const COMPONENTS: { layer: string; responsibility: string }[] = [
 
 export default function ArchitecturePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <TopNav />
+    <div className="min-h-full flex flex-col" style={{ background: "linear-gradient(135deg, #b8f0dc 0%, #d8d4f4 45%, #ead4f8 100%)" }}>
 
       <div className="max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-8">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Architecture</h1>
-          <p className="text-muted-foreground text-sm max-w-2xl">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">Architecture</h1>
+          <p className="text-slate-600 text-sm max-w-2xl">
             Ingestion feeds a vector store and a knowledge graph; an agentic router
             chooses vector, graph, or hybrid retrieval, and a compliance agent runs
             over the same corpus. Every model call passes through one provider seam.
           </p>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
+        <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-sm p-4 sm:p-6">
           <MermaidDiagram chart={ARCHITECTURE_CHART} id="architecture" />
         </div>
 
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
             Components
           </h2>
-          <div className="rounded-xl border border-border overflow-hidden">
+          <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden">
             <table className="w-full text-sm">
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-slate-100">
                 {COMPONENTS.map((c) => (
-                  <tr key={c.layer} className="hover:bg-muted/30">
-                    <td className="px-4 py-2.5 font-medium whitespace-nowrap w-44">
+                  <tr key={c.layer} className="hover:bg-white/60">
+                    <td className="px-4 py-2.5 font-medium whitespace-nowrap w-44 text-slate-800">
                       {c.layer}
                     </td>
-                    <td className="px-4 py-2.5 text-muted-foreground">
+                    <td className="px-4 py-2.5 text-slate-500">
                       {c.responsibility}
                     </td>
                   </tr>
@@ -121,31 +118,31 @@ export default function ArchitecturePage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-5 space-y-2">
-          <h2 className="text-base font-semibold">
+        <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 space-y-2">
+          <h2 className="text-base font-semibold text-slate-800">
             Provider abstraction & data sovereignty
           </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-slate-600 leading-relaxed">
             No route or agent imports a model SDK directly — everything goes through{" "}
-            <code className="text-foreground">getChatModel(&quot;fast&quot; | &quot;quality&quot;)</code>{" "}
+            <code className="text-slate-800">getChatModel(&quot;fast&quot; | &quot;quality&quot;)</code>{" "}
             and the embedding module. Because of that single seam, the deployment
             target is just an environment variable:
           </p>
-          <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-5">
+          <ul className="text-sm text-slate-600 space-y-1 list-disc pl-5">
             <li>
-              <code className="text-foreground">LLM_PROVIDER=groq</code> — hosted open
+              <code className="text-slate-800">LLM_PROVIDER=groq</code> — hosted open
               models for the fastest path.
             </li>
             <li>
-              <code className="text-foreground">LLM_PROVIDER=ollama</code> — fully
+              <code className="text-slate-800">LLM_PROVIDER=ollama</code> — fully
               on-prem open models for data residency, with zero code changes.
             </li>
             <li>
-              <code className="text-foreground">LLM_PROVIDER=hosted</code> — any
+              <code className="text-slate-800">LLM_PROVIDER=hosted</code> — any
               OpenAI-compatible endpoint (private/regional cloud).
             </li>
           </ul>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-slate-600 leading-relaxed">
             Process data, incident records and compliance evidence can stay entirely
             inside the customer&apos;s perimeter while the identical retrieval, graph,
             and compliance logic runs unchanged.

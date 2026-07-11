@@ -1,0 +1,40 @@
+[
+  {
+    "id": "sharma",
+    "name": "Engineer Sharma",
+    "experienceYears": 34,
+    "retiringInMonths": 6,
+    "incidentsSolved": 432,
+    "assetsManaged": ["P-101", "B-11", "T-4"],
+    "knowledgeRiskScore": 92,
+    "missingDocumentation": [
+      "Boiler B-11 emergency shutdown procedure",
+      "Turbine T-4 overspeed trip test records (2023–2025)"
+    ]
+  },
+  {
+    "id": "patel",
+    "name": "Engineer Patel",
+    "experienceYears": 28,
+    "retiringInMonths": 14,
+    "incidentsSolved": 287,
+    "assetsManaged": ["B-11", "HX-201", "V-201"],
+    "knowledgeRiskScore": 74,
+    "missingDocumentation": [
+      "Heat exchanger HX-201 tube bundle inspection checklist",
+      "Pressure vessel V-201 remaining-life calculation worksheet"
+    ]
+  },
+  {
+    "id": "rao",
+    "name": "P. Rao",
+    "experienceYears": 19,
+    "retiringInMonths": 24,
+    "incidentsSolved": 156,
+    "assetsManaged": ["HX-201", "P-101"],
+    "knowledgeRiskScore": 45,
+    "missingDocumentation": [
+      "Permit-to-work gas testing at bleed points — field procedure"
+    ]
+  }
+]

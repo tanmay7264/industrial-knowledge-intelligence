@@ -1,4 +1,5 @@
 import type { RetrievedChunk } from "./retrieve";
+import type { SubgraphData } from "@/lib/graph/types";
 
 export interface Source {
   n: number;
@@ -19,9 +20,13 @@ export interface ChatAnswer {
 
 export function computeConfidence(
   scores: number[],
-  abstained: boolean
+  abstained: boolean,
+  hasGraphEvidence = false
 ): ConfidenceLevel {
-  if (abstained || scores.length === 0) return "Low";
+  if (abstained) return "Low";
+  // Graph-only answers carry no vector similarity scores. Treat solid graph
+  // evidence as Medium instead of defaulting to Low for the absence of scores.
+  if (scores.length === 0) return hasGraphEvidence ? "Medium" : "Low";
   const topScores = scores.slice(0, 3);
   const avg = topScores.reduce((a, b) => a + b, 0) / topScores.length;
   if (avg >= 0.75) return "High";
@@ -39,9 +44,35 @@ export function sourcesFromChunks(chunks: RetrievedChunk[]): Source[] {
   }));
 }
 
+/** Citation sources derived from Document nodes when retrieval is graph-only. */
+export function sourcesFromSubgraph(subgraph: SubgraphData | null): Source[] {
+  if (!subgraph || subgraph.nodes.length === 0) return [];
+  const docs = subgraph.nodes.filter((n) => n.type === "Document");
+  const items = docs.length > 0 ? docs : subgraph.nodes.slice(0, 6);
+  return items.map((n, i) => ({
+    n: i + 1,
+    fileName: n.label,
+    page: "graph",
+    snippet: `Knowledge graph entity (${n.type})`,
+    score: 1,
+  }));
+}
+
+function numberedGraphDocSection(subgraph: SubgraphData): string {
+  const docs = subgraph.nodes.filter((n) => n.type === "Document");
+  if (docs.length === 0) return "";
+  return `\n\nDOCUMENT CONTEXT (from knowledge graph):\n${docs
+    .map(
+      (d, i) =>
+        `[${i + 1}] (${d.label}, graph-linked)\nReferenced in graph relationships for this query.`
+    )
+    .join("\n\n---\n\n")}`;
+}
+
 export function buildSystemPrompt(
   chunks: RetrievedChunk[],
-  graphContext?: string
+  graphContext?: string,
+  subgraph?: SubgraphData | null
 ): string {
   const header = `You are an expert industrial knowledge assistant for an IKI (Industrial Knowledge Intelligence) system.
 
@@ -61,7 +92,9 @@ RULES:
               `[${i + 1}] (${c.fileName}, section ${c.pageOrSection})\n${c.text}`
           )
           .join("\n\n---\n\n")}`
-      : "";
+      : subgraph
+        ? numberedGraphDocSection(subgraph)
+        : "";
 
   const graphSection = graphContext
     ? `\n\n${graphContext}`

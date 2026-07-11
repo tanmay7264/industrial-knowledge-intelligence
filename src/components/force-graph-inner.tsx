@@ -25,6 +25,12 @@ const NODE_COLORS: Record<NodeType, string> = {
   RegulatoryRef: "#ef4444",
   Person: "#22c55e",
   Parameter: "#a855f7",
+  Incident: "#dc2626",
+  Symptom: "#f59e0b",
+  RootCause: "#b45309",
+  Resolution: "#10b981",
+  Outcome: "#64748b",
+  LessonLearned: "#8b5cf6",
 };
 
 interface Props {

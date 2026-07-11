@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { TopNav } from "@/components/top-nav";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -366,8 +365,7 @@ export default function CompliancePage() {
   }, [report]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <TopNav />
+    <div className="flex flex-col min-h-full bg-background">
       {/* ── Page header ── */}
       <div className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b border-border/40 bg-background/80 backdrop-blur-md px-6">
         <div className="flex items-center gap-2.5">

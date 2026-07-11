@@ -1,0 +1,28 @@
+OEM MANUAL EXCERPT — GRUNDFOS CR SERIES
+Document: P301-OEM-MANUAL-cavitation-alignment
+Section: Troubleshooting — Cavitation and Bearing Failures
+
+Cavitation Symptoms:
+- Intermittent rumbling or crackling noise at impeller
+- Fluctuating discharge pressure and flow
+- Erosion marks on impeller vanes
+- Accelerated bearing wear due to hydraulic imbalance
+
+Root Causes of Recurring Bearing Failure:
+1. Insufficient NPSH available at suction
+2. Shaft misalignment exceeding 0.05 mm
+3. Pipe strain on pump casing
+4. Operating beyond BEP (best efficiency point)
+
+Alignment Requirements:
+- Laser alignment mandatory after ANY bearing replacement
+- Maximum allowable misalignment: 0.05 mm radial, 0.03 mm angular
+- Re-check alignment after 48 hours of operation (thermal growth)
+
+Recommended Corrective Actions:
+- Verify suction conditions and strainer cleanliness
+- Perform laser shaft alignment
+- Ensure operation within 70–110% of BEP flow
+- Document alignment results in CMMS before closing work order
+
+Asset: P-301, P-305, P-318 (same model family)

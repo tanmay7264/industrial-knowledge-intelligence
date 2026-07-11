@@ -1,0 +1,28 @@
+GRUNDFOS CR MULTI PUMP — TECHNICAL MANUAL EXTRACT
+Model: CR 32-4 (Tag P-101)
+Section 6: Vibration Diagnostics and Bearing Maintenance
+
+6.1 ACCEPTABLE VIBRATION LEVELS
+Normal operation: < 4.5 mm/s RMS at bearing housing
+Alert level: 4.5–7.1 mm/s RMS — schedule inspection within 72 hours
+Trip level: > 7.1 mm/s RMS — stop pump and investigate before restart
+
+6.2 COMMON CAUSES OF ELEVATED VIBRATION
+- Shaft misalignment between motor and pump coupling
+- Bearing wear or lubrication failure
+- Cavitation due to insufficient NPSH
+- Loose foundation bolts or pipe strain on suction/discharge
+
+6.3 DIAGNOSTIC SEQUENCE (VENDOR RECOMMENDED)
+Step 1: Verify suction/discharge valve positions and flow rate
+Step 2: Check coupling alignment (laser alignment preferred)
+Step 3: Measure bearing temperature — if rising with vibration, suspect alignment
+Step 4: Inspect mechanical seal for dry-running damage
+Step 5: Only replace bearings after alignment is confirmed within 0.05 mm
+
+6.4 BEARING REPLACEMENT NOTES
+Use SKF 6312-C3 bearings. Do not install new bearings on a misaligned shaft —
+expected bearing life drops by 60% per ISO 281 calculation.
+
+Document type: vendor_manual
+Asset: P-101

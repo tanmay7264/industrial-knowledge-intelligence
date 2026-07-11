@@ -1,0 +1,17 @@
+MAINTENANCE LOG — ROTATING EQUIPMENT
+Asset: Hydraulic Pump P-101
+Period: Q1 2025 (Jan–Mar)
+Maintained by: Maintenance Team Alpha
+
+2025-01-08 | ROUTINE | Vibration 2.0 mm/s | Bearing temp 55°C | Normal
+2025-02-03 | ROUTINE | Vibration 2.4 mm/s | Bearing temp 57°C | Normal
+2025-03-12 | ALERT   | Vibration 4.8 mm/s | Bearing temp 65°C | Inspection scheduled
+2025-03-15 | INSPECT | Vibration trending up over 7 days | Coupling alignment spot-check recommended
+2025-03-18 | NOTE    | Engineer Sharma: "Watch for vibration + temp rise together —
+           likely alignment, not bearing. See INC-2024-P101 and vendor manual Sec 6."
+
+RECURRING PATTERN
+Three vibration events on P-101 in 24 months — all traced to alignment, not bearing wear.
+Most common root cause: misalignment after maintenance or foundation work.
+
+Document type: maintenance_log

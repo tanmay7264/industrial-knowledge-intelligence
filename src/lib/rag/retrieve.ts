@@ -16,15 +16,17 @@ export interface RetrievedChunk {
 export interface RetrieveOptions {
   topK?: number;
   docTypeFilter?: string;
+  /** Pre-computed query embedding. When supplied, skips re-embedding the query. */
+  queryVector?: number[];
 }
 
 export async function retrieveChunks(
   query: string,
   options: RetrieveOptions = {}
 ): Promise<RetrievedChunk[]> {
-  const { topK = 8, docTypeFilter } = options;
+  const { topK = 6, docTypeFilter } = options;
 
-  const queryVector = await embedSingle(query);
+  const queryVector = options.queryVector ?? (await embedSingle(query));
 
   const filter = docTypeFilter
     ? { must: [{ key: "docType", match: { value: docTypeFilter } }] }

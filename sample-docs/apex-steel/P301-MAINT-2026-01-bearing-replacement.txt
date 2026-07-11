@@ -1,0 +1,17 @@
+MAINTENANCE RECORD — BEARING REPLACEMENT
+Asset: P-301 Cooling Water Pump
+Date: 2026-01-12
+Work Order: WO-2026-0142
+Technician: R. Kumar
+
+Work Performed:
+- Removed drive-end bearing (6208-2RS)
+- Installed new bearing, lubricated per OEM spec
+- Vibration post-work: 3.2 mm/s RMS
+
+Notes:
+- Bearing showed spalling on outer race
+- No alignment check performed — time pressure during shutdown window
+- Coupling inspected visually, no obvious misalignment noted
+
+Equipment: Grundfos CR 64-2, 45 kW, installed 2018-06-12

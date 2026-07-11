@@ -1,0 +1,30 @@
+EXPERT KNOWLEDGE CAPTURE — RETIREMENT HANDOVER INTERVIEW
+Expert: Engineer Sharma (Senior Rotating Equipment Specialist)
+Date: 2025-02-18
+Asset focus: Hydraulic Pump P-101, Boiler B-11, Turbine T-4
+Experience: 34 years
+
+INTERVIEW NOTES — TACIT KNOWLEDGE
+
+On pump P-101 vibration diagnostics:
+"If vibration and bearing temperature increase together on P-101, check shaft alignment
+before replacing bearings. In three of the last four vibration events we traced to
+misalignment, not bearing wear. The alignment check was skipped in the 2023 bearing
+replacement — we paid for that with a repeat failure within 90 days."
+
+On mechanical seal failures:
+"Seal failures on P-101 usually follow misalignment or dry-running during startup.
+Never run the pump dry for more than 30 seconds during priming."
+
+On organizational memory:
+"When I retire, the next engineer needs to know that Grundfos manual Section 6 covers
+bearing diagnostics, but the real fix for recurring P-101 vibration is Alignment
+Procedure Rev B — not just bearing swap."
+
+RECOMMENDED ACTIONS FOR KNOWLEDGE CONTINUITY:
+- Capture alignment procedure Rev B in CMMS work order templates
+- Link incident reports INC-2023-P101 and INC-2024-P101 to P-101 asset record
+- Schedule shadowing sessions with junior engineers before June 2025 retirement
+
+Recorded by: HR / Knowledge Management Team
+Document type: expert_interview

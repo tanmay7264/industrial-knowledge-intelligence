@@ -1,457 +1,190 @@
 "use client";
 
-import { TopNav } from "@/components/top-nav";
-
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { SubgraphView } from "@/components/subgraph-view";
-import type { Source, ConfidenceLevel } from "@/lib/rag/answer";
-import type { SubgraphData } from "@/lib/graph/types";
-import type { RetrievalMode } from "@/lib/rag/router";
-import type { ComplianceReport, Verdict } from "@/lib/agents/compliance-types";
+import { Loader2 } from "lucide-react";
+import type { OperationalPlaybook } from "@/lib/agents/playbook-types";
+import type { RCAReport } from "@/lib/agents/rca-types";
+import type { KnowledgeRiskReport } from "@/lib/agents/knowledge-risk";
 
+type DemoMode = "brain" | "iom";
 type StepStatus = "idle" | "running" | "done" | "error";
 
-interface ChatResult {
-  answer: string;
-  sources: Source[];
-  confidence?: ConfidenceLevel;
-  mode?: RetrievalMode;
-  latencyMs?: number;
-  subgraph?: SubgraphData | null;
-}
-
-interface DemoStep {
-  id: string;
-  kind: "chat" | "compliance";
-  title: string;
-  query?: string;
-  criterion: string;
-  caption: string;
-}
-
-const STEPS: DemoStep[] = [
-  {
-    id: "factual",
-    kind: "chat",
-    title: "Factual lookup with citations",
-    query:
-      "What is the preventive maintenance interval for the mechanical seal on hydraulic pump P-101?",
-    criterion: "Technical Excellence + UX",
-    caption:
-      "Grounded answer with an inline [n] citation and a confidence score — every claim traces back to a source document.",
-  },
-  {
-    id: "graph",
-    kind: "chat",
-    title: "Multi-hop graph query",
-    query:
-      "Which regulations govern pressure vessel V-201, and which documents mention it?",
-    criterion: "Innovation",
-    caption:
-      "A relationship question pure vector RAG can't answer. The router picks graph/hybrid and returns the connected subgraph — equipment → regulation → documents.",
-  },
-  {
-    id: "abstain",
-    kind: "chat",
-    title: "Honest abstain (no hallucination)",
-    query: "What is the resale value of the plant manager's company car?",
-    criterion: "Business Impact (trust)",
-    caption:
-      "Off-corpus question. IKI answers “Not found in the knowledge base” instead of inventing — the honesty a safety-critical buyer requires.",
-  },
-  {
-    id: "compliance",
-    kind: "compliance",
-    title: "Compliance gap scan",
-    criterion: "Business Impact",
-    caption:
-      "An agent checks every regulatory requirement against corpus evidence and returns Covered / Partial / Gap / Unknown — conservatively, with citations.",
-  },
+const BRAIN_STEPS = [
+  { id: "problem", title: "Problem detected — P-301 vibration alert", caption: "Cooling water pump P-301 showing pre-failure vibration pattern." },
+  { id: "upload", title: "Documents ingested", caption: "Maintenance records, inspection reports, OEM manual, operator logs indexed." },
+  { id: "ask", title: "Ask Copilot", caption: '"Why does Pump P-301 keep failing?"' },
+  { id: "investigate", title: "Asset 360 investigation", caption: "Timeline shows two bearing replacements without alignment checks." },
+  { id: "rca", title: "RCA workspace", caption: "Ranked hypothesis: cavitation + shaft misalignment at 87% confidence." },
+  { id: "graph", title: "Knowledge graph", caption: "P-301 → cavitation → bearing failure → maintenance chain discovered." },
+  { id: "alert", title: "Proactive alert", caption: "P-305 showing similar pattern — apply P-301 RCA proactively." },
 ];
 
-const CONFIDENCE_STYLES: Record<ConfidenceLevel, string> = {
-  High: "bg-emerald-500 text-white border-transparent",
-  Medium: "bg-yellow-500 text-white border-transparent",
-  Low: "bg-destructive text-destructive-foreground border-transparent",
-};
-
-const MODE_STYLES: Record<RetrievalMode, string> = {
-  vector: "bg-blue-500/15 text-blue-500 border-blue-500/30",
-  graph: "bg-purple-500/15 text-purple-500 border-purple-500/30",
-  hybrid: "bg-cyan-500/15 text-cyan-500 border-cyan-500/30",
-};
-
-const VERDICT_TILE: Record<Verdict, string> = {
-  COVERED: "border-emerald-500/30 bg-emerald-500/10 text-emerald-500",
-  PARTIAL: "border-amber-500/30 bg-amber-500/10 text-amber-500",
-  GAP: "border-destructive/30 bg-destructive/10 text-destructive",
-  UNKNOWN: "border-slate-500/30 bg-slate-500/10 text-slate-400",
-};
-
-const VERDICTS: Verdict[] = ["COVERED", "PARTIAL", "GAP", "UNKNOWN"];
-
-async function runChatQuery(
-  query: string,
-  onText: (full: string) => void
-): Promise<ChatResult> {
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-  const result: ChatResult = { answer: "", sources: [] };
-
-  const ct = res.headers.get("Content-Type") ?? "";
-  if (ct.includes("application/json")) {
-    const data = await res.json();
-    result.answer = data.answer;
-    result.sources = data.sources ?? [];
-    result.confidence = data.confidence;
-    result.mode = data.mode;
-    result.latencyMs = data.latencyMs;
-    result.subgraph = data.subgraph ?? null;
-    onText(result.answer);
-    return result;
-  }
-
-  const reader = res.body!.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const events = buffer.split("\n\n");
-    buffer = events.pop() ?? "";
-    for (const block of events) {
-      const lines = block.split("\n");
-      const ev = lines.find((l) => l.startsWith("event: "))?.slice(7).trim();
-      const dataLine = lines.find((l) => l.startsWith("data: "));
-      if (!ev || !dataLine) continue;
-      const payload = JSON.parse(dataLine.slice(6));
-      if (ev === "meta") {
-        result.sources = payload.sources ?? [];
-        result.subgraph = payload.subgraph ?? null;
-        result.mode = payload.mode;
-      } else if (ev === "text") {
-        result.answer += payload.chunk as string;
-        onText(result.answer);
-      } else if (ev === "done") {
-        result.confidence = payload.confidence;
-        result.latencyMs = payload.latencyMs;
-        result.mode = payload.mode ?? result.mode;
-      }
-    }
-  }
-  return result;
-}
+const IOM_STEPS = [
+  { id: "problem", title: "Knowledge disappears when experts retire", caption: "P-101 vibration alert — Sharma retired." },
+  { id: "risk", title: "Knowledge Risk dashboard", caption: "Engineer Sharma: 92% risk, 432 incidents." },
+  { id: "corpus", title: "Organizational memory ingested", caption: "SOPs, incidents, expert interviews indexed." },
+  { id: "playbook", title: "Operational Playbook", caption: '"Pump P-101 vibration increasing" → structured playbook.' },
+  { id: "evidence", title: "Every claim cited", caption: "Incident #24, Work Order #55, SOP Rev B, Sharma interview." },
+  { id: "closing", title: "Memory remains", caption: "Experts retire — organizational memory remains." },
+];
 
 export default function DemoPage() {
+  const [mode, setMode] = useState<DemoMode>("brain");
   const [statuses, setStatuses] = useState<Record<string, StepStatus>>({});
-  const [chatResults, setChatResults] = useState<Record<string, ChatResult>>({});
-  const [report, setReport] = useState<ComplianceReport | null>(null);
-  const [activeSource, setActiveSource] = useState<Source | null>(null);
+  const [runningAll, setRunningAll] = useState(false);
+  const [rca, setRca] = useState<RCAReport | null>(null);
+  const [playbook, setPlaybook] = useState<OperationalPlaybook | null>(null);
+  const [riskReport, setRiskReport] = useState<KnowledgeRiskReport | null>(null);
 
-  const setStatus = (id: string, s: StepStatus) =>
-    setStatuses((prev) => ({ ...prev, [id]: s }));
+  const steps = mode === "brain" ? BRAIN_STEPS : IOM_STEPS;
 
-  const runStep = useCallback(async (step: DemoStep) => {
-    setStatus(step.id, "running");
+  const setStatus = (id: string, status: StepStatus) =>
+    setStatuses((s) => ({ ...s, [id]: status }));
+
+  const runStep = useCallback(async (id: string, demoMode: DemoMode) => {
+    setStatus(id, "running");
     try {
-      if (step.kind === "chat" && step.query) {
-        const res = await runChatQuery(step.query, (full) =>
-          setChatResults((prev) => ({
-            ...prev,
-            [step.id]: { ...(prev[step.id] ?? { sources: [] }), answer: full },
-          }))
-        );
-        setChatResults((prev) => ({ ...prev, [step.id]: res }));
+      if (demoMode === "brain") {
+        if (id === "rca" || id === "ask") {
+          const res = await fetch("/api/rca", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: "Why does Pump P-301 keep failing?", asset: "P-301" }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+          setRca(data);
+        }
+        if (id === "alert") {
+          const res = await fetch("/api/alerts");
+          await res.json();
+        }
       } else {
-        // Prefer a cached report so the slowest step replays instantly on stage;
-        // only run a fresh scan if nothing is cached yet.
-        const cached = await fetch("/api/compliance/scan")
-          .then((r) => (r.ok ? r.json() : null))
-          .catch(() => null);
-        if (cached?.report) {
-          setReport(cached.report);
-        } else {
-          const r = await fetch("/api/compliance/scan", { method: "POST" });
-          const data = await r.json();
-          if (!r.ok) throw new Error(data.error ?? `HTTP ${r.status}`);
-          setReport(data.report);
+        if (id === "risk") {
+          const res = await fetch("/api/knowledge-risk");
+          const data = await res.json();
+          setRiskReport(data.report);
+        }
+        if (id === "playbook" || id === "evidence") {
+          const res = await fetch("/api/playbook", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: "Pump P-101 vibration increasing" }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+          setPlaybook(data.playbook);
         }
       }
-      setStatus(step.id, "done");
-    } catch {
-      setStatus(step.id, "error");
-      toast.error(`Demo step failed: ${step.title}`, {
-        description:
-          "Ensure the corpus is seeded (npm run seed) and model keys are set.",
-      });
+      await new Promise((r) => setTimeout(r, id === "problem" || id === "upload" || id === "corpus" || id === "closing" || id === "graph" || id === "investigate" ? 700 : 0));
+      setStatus(id, "done");
+    } catch (e) {
+      setStatus(id, "error");
+      toast.error(e instanceof Error ? e.message : "Step failed");
     }
   }, []);
 
-  const runAll = useCallback(async () => {
-    for (const step of STEPS) {
-      // eslint-disable-next-line no-await-in-loop
-      await runStep(step);
+  const runAll = async () => {
+    setRunningAll(true);
+    setStatuses({});
+    for (const step of steps) {
+      await runStep(step.id, mode);
     }
-  }, [runStep]);
-
-  const anyRunning = Object.values(statuses).some((s) => s === "running");
+    setRunningAll(false);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <TopNav />
-      <div className="max-w-3xl mx-auto w-full p-4 sm:p-6 space-y-6">
-        {/* Intro */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">Guided Demo</h1>
-            <p className="text-muted-foreground text-sm max-w-xl">
-              Four steps, each mapped to a judging criterion. Run them one at a
-              time to narrate, or play the whole sequence.
-            </p>
-          </div>
-          <Button onClick={runAll} disabled={anyRunning} className="shrink-0">
-            {anyRunning ? "Running…" : "▶ Run all 4 steps"}
+    <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-3xl font-bold">Demo</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {mode === "brain" ? "Industrial Brain — P-301 hero flow" : "IOM — P-101 organizational memory"}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant={mode === "brain" ? "default" : "outline"} size="sm" onClick={() => { setMode("brain"); setStatuses({}); }}>
+            Industrial Brain
+          </Button>
+          <Button variant={mode === "iom" ? "default" : "outline"} size="sm" onClick={() => { setMode("iom"); setStatuses({}); }}>
+            IOM
+          </Button>
+          <Button onClick={runAll} disabled={runningAll}>
+            {runningAll ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Running…</> : "Run full demo"}
           </Button>
         </div>
+      </div>
 
-        {/* Steps */}
-        <div className="space-y-4">
-          {STEPS.map((step, i) => {
-            const status = statuses[step.id] ?? "idle";
-            const chat = chatResults[step.id];
-            return (
-              <div
-                key={step.id}
-                className="rounded-xl border border-border bg-card overflow-hidden"
-              >
-                {/* Step header */}
-                <div className="flex items-start gap-3 p-4">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
-                    {i + 1}
+      <ol className="space-y-4">
+        {steps.map((step, i) => {
+          const status = statuses[step.id] ?? "idle";
+          return (
+            <li key={step.id} className="rounded-xl border bg-card p-5">
+              <div className="flex items-start gap-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary font-bold text-sm">
+                  {i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="font-semibold">{step.title}</h2>
+                    {status === "done" && <Badge className="bg-emerald-500">Done</Badge>}
+                    {status === "running" && <Badge className="animate-pulse">Running…</Badge>}
+                    {status === "error" && <Badge variant="destructive">Error</Badge>}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="font-semibold text-sm">{step.title}</h2>
-                      <Badge variant="outline" className="text-[10px]">
-                        {step.criterion}
-                      </Badge>
+                  <p className="text-sm text-muted-foreground">{step.caption}</p>
+
+                  {mode === "brain" && step.id === "rca" && rca && status === "done" && (
+                    <div className="mt-3 text-sm border rounded-lg p-3 bg-muted/40">
+                      <p><strong>{rca.primaryHypothesis}</strong> — {rca.confidence}% confidence</p>
+                      <Link href="/rca" className="text-primary text-xs mt-1 inline-block">Open RCA →</Link>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                      {step.caption}
-                    </p>
-                    {step.query && (
-                      <p className="mt-2 text-sm italic text-foreground/80">
-                        “{step.query}”
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant={status === "done" ? "outline" : "default"}
-                    onClick={() => runStep(step)}
-                    disabled={status === "running"}
-                    className="shrink-0"
-                  >
-                    {status === "running"
-                      ? "…"
-                      : status === "done"
-                        ? "Re-run"
-                        : "Run"}
-                  </Button>
+                  )}
+
+                  {mode === "iom" && (step.id === "playbook" || step.id === "evidence") && playbook && status === "done" && (
+                    <div className="mt-3 text-sm border rounded-lg p-3 bg-muted/40">
+                      <p><strong>Root cause:</strong> {playbook.mostCommonRootCause}</p>
+                      <p className="mt-1"><strong>Resolution:</strong> {playbook.previousSuccessfulResolution}</p>
+                    </div>
+                  )}
+
+                  {mode === "iom" && step.id === "risk" && riskReport && status === "done" && (
+                    <div className="mt-3 text-sm">
+                      Aggregate risk score: <strong>{riskReport.aggregateRiskScore}%</strong>
+                    </div>
+                  )}
+
+                  {status === "idle" && (
+                    <Button size="sm" variant="outline" className="mt-3" onClick={() => runStep(step.id, mode)}>
+                      Run step
+                    </Button>
+                  )}
                 </div>
-
-                {/* Step result */}
-                {(status === "running" || status === "done" || chat) && (
-                  <div className="border-t border-border bg-muted/30 p-4 space-y-3">
-                    {step.kind === "chat" ? (
-                      <ChatStepResult
-                        status={status}
-                        chat={chat}
-                        confStyles={CONFIDENCE_STYLES}
-                        modeStyles={MODE_STYLES}
-                        onSource={setActiveSource}
-                      />
-                    ) : (
-                      <ComplianceStepResult status={status} report={report} />
-                    )}
-                  </div>
-                )}
               </div>
-            );
-          })}
-        </div>
-      </div>
+            </li>
+          );
+        })}
+      </ol>
 
-      <SourceDialog source={activeSource} onClose={() => setActiveSource(null)} />
+      <div className="flex flex-wrap gap-3 pt-4">
+        {mode === "brain" ? (
+          <>
+            <Link href="/command"><Button variant="outline" size="sm">Command Center</Button></Link>
+            <Link href="/assets/P-301"><Button variant="outline" size="sm">Asset P-301</Button></Link>
+            <Link href="/copilot?q=Why+does+Pump+P-301+keep+failing%3F"><Button variant="outline" size="sm">Copilot</Button></Link>
+            <Link href="/alerts"><Button variant="outline" size="sm">Alerts</Button></Link>
+          </>
+        ) : (
+          <>
+            <Link href="/knowledge-risk"><Button variant="outline" size="sm">Knowledge Risk</Button></Link>
+            <Link href="/playbook"><Button variant="outline" size="sm">Playbook</Button></Link>
+          </>
+        )}
+      </div>
     </div>
-  );
-}
-
-function ChatStepResult({
-  status,
-  chat,
-  confStyles,
-  modeStyles,
-  onSource,
-}: {
-  status: StepStatus;
-  chat?: ChatResult;
-  confStyles: Record<ConfidenceLevel, string>;
-  modeStyles: Record<RetrievalMode, string>;
-  onSource: (s: Source) => void;
-}) {
-  if (status === "running" && !chat?.answer) {
-    return (
-      <div className="space-y-1.5">
-        <Skeleton className="h-3 w-3/4" />
-        <Skeleton className="h-3 w-1/2" />
-      </div>
-    );
-  }
-  if (!chat) return null;
-
-  return (
-    <>
-      <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{chat.answer}</ReactMarkdown>
-      </div>
-
-      {chat.subgraph && chat.subgraph.nodes.length > 0 && (
-        <SubgraphView data={chat.subgraph} height={220} width={640} className="max-w-full" />
-      )}
-
-      <div className="flex flex-wrap items-center gap-2">
-        {chat.confidence && (
-          <Badge className={`text-xs ${confStyles[chat.confidence]}`}>
-            {chat.confidence} confidence
-          </Badge>
-        )}
-        {chat.mode && (
-          <Badge variant="outline" className={`text-xs ${modeStyles[chat.mode]}`}>
-            {chat.mode}
-          </Badge>
-        )}
-        {chat.latencyMs && (
-          <span className="text-xs text-muted-foreground tabular-nums">
-            {(chat.latencyMs / 1000).toFixed(1)}s
-          </span>
-        )}
-      </div>
-
-      {chat.sources.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {chat.sources.map((s) => (
-            <button
-              key={s.n}
-              onClick={() => onSource(s)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted hover:bg-muted/80 text-xs text-muted-foreground border border-border transition-colors"
-            >
-              <span className="font-mono font-semibold text-foreground">[{s.n}]</span>
-              <span className="truncate max-w-[140px]">{s.fileName}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </>
-  );
-}
-
-function ComplianceStepResult({
-  status,
-  report,
-}: {
-  status: StepStatus;
-  report: ComplianceReport | null;
-}) {
-  if (status === "running" && !report) {
-    return (
-      <div className="grid grid-cols-4 gap-2">
-        {VERDICTS.map((v) => (
-          <Skeleton key={v} className="h-16 rounded-lg" />
-        ))}
-      </div>
-    );
-  }
-  if (!report) return null;
-
-  return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-4 gap-2">
-        {VERDICTS.map((v) => (
-          <div
-            key={v}
-            className={`rounded-lg border p-2 text-center ${VERDICT_TILE[v]}`}
-          >
-            <div className="text-xl font-bold tabular-nums">{report.summary[v]}</div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide opacity-80">
-              {v}
-            </div>
-          </div>
-        ))}
-      </div>
-      <a
-        href="/compliance"
-        className="inline-block text-xs text-primary hover:underline underline-offset-4"
-      >
-        Open full compliance dashboard →
-      </a>
-    </div>
-  );
-}
-
-function SourceDialog({
-  source,
-  onClose,
-}: {
-  source: Source | null;
-  onClose: () => void;
-}) {
-  return (
-    <Dialog open={!!source} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-sm font-semibold flex items-center gap-2">
-            <span className="font-mono text-primary">[{source?.n}]</span>
-            {source?.fileName}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="flex gap-3 text-xs text-muted-foreground">
-            <span>
-              Section / Page:{" "}
-              <strong className="text-foreground">{source?.page}</strong>
-            </span>
-            <span>
-              Similarity:{" "}
-              <strong className="text-foreground">
-                {((source?.score ?? 0) * 100).toFixed(1)}%
-              </strong>
-            </span>
-          </div>
-          <div className="rounded-lg bg-muted p-3 text-sm leading-relaxed text-foreground border border-border">
-            {source?.snippet}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }

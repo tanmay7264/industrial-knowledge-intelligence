@@ -1,0 +1,22 @@
+INSPECTION REPORT — VIBRATION BASELINE
+Asset: P-318 Cooling Water Pump
+Date: 2026-05-20
+Inspector: A. Mehta
+
+Findings:
+- Vibration: 4.3 mm/s RMS (Monitoring level)
+- Bearing temperature: 57°C
+- Same Grundfos CR 64-2 model as P-301 and P-305
+- Last bearing replacement: 2025-11-10
+
+Emerging Pattern:
+- All three cooling water pumps (P-301, P-305, P-318) showing elevated vibration
+- Common factor: bearing replacements without documented alignment checks
+- Shared cooling water circuit — systemic suction/NPSH risk
+
+Recommendation:
+- Fleet-wide alignment and NPSH audit
+- Link to P-301 RCA when available
+
+Asset tag: P-318
+Plant area: Water Treatment

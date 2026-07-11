@@ -1,0 +1,10 @@
+[
+  { "id": "feed-1", "timestamp": "2026-06-01T08:30:00Z", "type": "sensor", "message": "Vibration trend alert on P-301 — approaching pre-failure levels", "assetTag": "P-301" },
+  { "id": "feed-2", "timestamp": "2026-05-28T14:15:00Z", "type": "compliance", "message": "Compliance gap detected: C-204 inspection overdue", "assetTag": "C-204" },
+  { "id": "feed-3", "timestamp": "2026-05-22T06:00:00Z", "type": "upload", "message": "Document uploaded: P-301 operator shift log (cavitation report)", "assetTag": "P-301" },
+  { "id": "feed-4", "timestamp": "2026-05-20T11:45:00Z", "type": "graph", "message": "Asset relationship discovered: P-301 → cavitation → bearing failure chain", "assetTag": "P-301" },
+  { "id": "feed-5", "timestamp": "2026-05-18T09:00:00Z", "type": "rca", "message": "AI RCA investigation completed for P-301 — 87% confidence", "assetTag": "P-301" },
+  { "id": "feed-6", "timestamp": "2026-05-15T16:30:00Z", "type": "pattern", "message": "Recurring failure pattern: bearing failures on P-301, P-305, P-318", "assetTag": "P-305" },
+  { "id": "feed-7", "timestamp": "2026-05-10T10:00:00Z", "type": "upload", "message": "Expert interview ingested: Engineer Sharma P-101 handover notes", "assetTag": "P-101" },
+  { "id": "feed-8", "timestamp": "2026-05-08T13:20:00Z", "type": "insight", "message": "Three maintenance records show alignment check skipped before bearing replacement", "assetTag": "P-301" }
+]

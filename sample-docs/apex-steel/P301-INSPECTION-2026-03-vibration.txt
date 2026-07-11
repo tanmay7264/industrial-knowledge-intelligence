@@ -1,0 +1,20 @@
+INSPECTION REPORT — VIBRATION ANALYSIS
+Asset: P-301 Cooling Water Pump
+Date: 2026-03-15
+Inspector: A. Mehta, Reliability Engineer
+
+Findings:
+- Overall vibration: 5.8 mm/s RMS (Alert level — limit 4.5 mm/s)
+- Bearing temperature: 68°C (Warning — limit 65°C)
+- Dominant frequency: 1× running speed + harmonics at 2×, 3×
+- Axial vibration elevated on drive end
+
+Recommendations:
+1. Schedule laser shaft alignment before next bearing replacement
+2. Verify NPSH available vs required — suction pressure 0.8 bar gauge
+3. Check for cavitation at peak load (operator reports intermittent noise)
+
+Previous bearing replacement: 2026-01-12 (62 days ago)
+Trend: Vibration increased from 3.2 → 4.8 → 5.8 mm/s over 60 days
+
+Cross-reference: Similar pattern observed on P-305 and P-318 cooling water pumps.

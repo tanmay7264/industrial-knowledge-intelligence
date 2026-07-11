@@ -1,0 +1,20 @@
+MAINTENANCE RECORD — BEARING REPLACEMENT (SECOND)
+Asset: P-301 Cooling Water Pump
+Date: 2026-04-08
+Work Order: WO-2026-0387
+Technician: R. Kumar
+
+Work Performed:
+- Second bearing replacement in 4 months
+- Bearing condition: severe spalling, metal particles in grease
+- Vibration pre-work: 6.2 mm/s RMS
+
+Critical Gap:
+- Alignment check NOT performed (same as January work order)
+- Root cause analysis NOT completed after this failure
+- CMMS work order closed without corrective action on alignment
+
+Supervisor note: "We keep replacing bearings. Need to find why."
+
+Equipment tag: P-301
+Related assets: P-305, P-318 (same pump model, same cooling water circuit)

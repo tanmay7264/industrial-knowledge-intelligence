@@ -1,7 +1,14 @@
 import { generateText } from "ai";
 import { getChatModel } from "@/lib/ai/provider";
 import { driver } from "@/lib/clients/neo4j";
-import type { SubgraphData, GraphNode, GraphEdge, NodeType } from "./types";
+import type {
+  SubgraphData,
+  GraphNode,
+  GraphEdge,
+  NodeType,
+  SimilarIncident,
+  LessonRecord,
+} from "./types";
 
 const VALID_TYPES = new Set<string>([
   "Document",
@@ -9,6 +16,12 @@ const VALID_TYPES = new Set<string>([
   "RegulatoryRef",
   "Person",
   "Parameter",
+  "Incident",
+  "Symptom",
+  "RootCause",
+  "Resolution",
+  "Outcome",
+  "LessonLearned",
 ]);
 
 function toNodeType(label: string | null | undefined): NodeType {
@@ -49,9 +62,7 @@ function serializeSubgraph(nodes: GraphNode[], edges: GraphEdge[]): string {
 }
 
 function buildGraphFromRecords(
-  records: Array<{
-    get: (key: string) => string | null;
-  }>
+  records: Array<{ get: (key: string) => string | null }>
 ): Pick<SubgraphData, "nodes" | "edges"> {
   const nodesMap = new Map<string, GraphNode>();
   const edgesSet = new Set<string>();
@@ -87,23 +98,22 @@ function buildGraphFromRecords(
 const SUBGRAPH_CYPHER = `
   UNWIND $terms AS term
   MATCH (anchor)
-  WHERE (anchor:Equipment OR anchor:RegulatoryRef OR anchor:Person OR anchor:Parameter OR anchor:Document)
-    AND toLower(coalesce(anchor.name, anchor.fileName, '')) CONTAINS toLower(term)
+  WHERE (anchor:Equipment OR anchor:RegulatoryRef OR anchor:Person OR anchor:Parameter OR anchor:Document OR anchor:Incident)
+    AND toLower(coalesce(anchor.name, anchor.fileName, anchor.label, '')) CONTAINS toLower(term)
   WITH collect(DISTINCT anchor)[0..6] AS anchors
   UNWIND anchors AS anchor
   OPTIONAL MATCH (anchor)-[r]-(neighbor)
   WHERE neighbor IS NOT NULL
   RETURN
     coalesce(anchor.id, anchor.name) AS srcId,
-    coalesce(anchor.name, anchor.fileName) AS srcLabel,
+    coalesce(anchor.name, anchor.fileName, anchor.label) AS srcLabel,
     labels(anchor)[0] AS srcType,
     type(r) AS relType,
     coalesce(neighbor.id, neighbor.name) AS tgtId,
-    coalesce(neighbor.name, neighbor.fileName) AS tgtLabel,
+    coalesce(neighbor.name, neighbor.fileName, neighbor.label) AS tgtLabel,
     labels(neighbor)[0] AS tgtType
   LIMIT 50`;
 
-// 1-hop subgraph used in chat (fast)
 export async function retrieveSubgraph(
   query: string,
   providedTerms?: string[]
@@ -114,23 +124,20 @@ export async function retrieveSubgraph(
   const session = driver.session();
   try {
     const result = await session.run(SUBGRAPH_CYPHER, { terms });
-    const { nodes, edges } = buildGraphFromRecords(
-      result.records as Parameters<typeof buildGraphFromRecords>[0]
-    );
+    const { nodes, edges } = buildGraphFromRecords(result.records);
     return { nodes, edges, textContext: serializeSubgraph(nodes, edges) };
   } finally {
     await session.close();
   }
 }
 
-// 2-hop neighborhood for the graph explorer page
 export async function retrieveNeighborhood(term: string): Promise<SubgraphData> {
   const session = driver.session();
   try {
     const result = await session.run(
       `MATCH (anchor)
-       WHERE (anchor:Equipment OR anchor:RegulatoryRef OR anchor:Person OR anchor:Parameter OR anchor:Document)
-         AND toLower(coalesce(anchor.name, anchor.fileName, '')) CONTAINS toLower($term)
+       WHERE (anchor:Equipment OR anchor:RegulatoryRef OR anchor:Person OR anchor:Parameter OR anchor:Document OR anchor:Incident)
+         AND toLower(coalesce(anchor.name, anchor.fileName, anchor.label, '')) CONTAINS toLower($term)
        WITH collect(DISTINCT anchor)[0..3] AS anchors
        UNWIND anchors AS a
        MATCH path = (a)-[*1..2]-(n)
@@ -138,19 +145,142 @@ export async function retrieveNeighborhood(term: string): Promise<SubgraphData> 
        UNWIND rels AS r
        RETURN
          coalesce(startNode(r).id, startNode(r).name) AS srcId,
-         coalesce(startNode(r).name, startNode(r).fileName) AS srcLabel,
+         coalesce(startNode(r).name, startNode(r).fileName, startNode(r).label) AS srcLabel,
          labels(startNode(r))[0] AS srcType,
          type(r) AS relType,
          coalesce(endNode(r).id, endNode(r).name) AS tgtId,
-         coalesce(endNode(r).name, endNode(r).fileName) AS tgtLabel,
+         coalesce(endNode(r).name, endNode(r).fileName, endNode(r).label) AS tgtLabel,
          labels(endNode(r))[0] AS tgtType
        LIMIT 80`,
       { term }
     );
-    const { nodes, edges } = buildGraphFromRecords(
-      result.records as Parameters<typeof buildGraphFromRecords>[0]
-    );
+    const { nodes, edges } = buildGraphFromRecords(result.records);
     return { nodes, edges, textContext: serializeSubgraph(nodes, edges) };
+  } finally {
+    await session.close();
+  }
+}
+
+function toNum(value: unknown): number {
+  if (value == null) return 0;
+  const v = value as { toNumber?: () => number };
+  return typeof v.toNumber === "function" ? v.toNumber() : Number(value);
+}
+
+export async function findSimilarIncidents(
+  asset: string,
+  symptoms: string[] = []
+): Promise<SimilarIncident[]> {
+  const session = driver.session();
+  const assetNorm = asset.trim().toLowerCase();
+  try {
+    const result = await session.run(
+      `MATCH (e:Equipment)-[:EXPERIENCED]->(i:Incident)
+       WHERE toLower(e.name) CONTAINS $assetNorm
+       OPTIONAL MATCH (i)-[:CAUSED_BY]->(rc:RootCause)
+       OPTIONAL MATCH (i)-[:RESOLVED_BY]->(res:Resolution)
+       RETURN i.id AS id, i.label AS label, i.eventDate AS eventDate,
+              rc.label AS rootCause, res.label AS resolution
+       ORDER BY i.eventDate DESC
+       LIMIT 10`,
+      { assetNorm }
+    );
+
+    let incidents = result.records.map((rec) => ({
+      id: String(rec.get("label") ?? rec.get("id") ?? "incident"),
+      summary:
+        [
+          rec.get("rootCause") ? `Root cause: ${rec.get("rootCause")}` : null,
+          rec.get("resolution") ? `Resolution: ${rec.get("resolution")}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ") || String(rec.get("label") ?? "Incident"),
+      asset,
+      date: rec.get("eventDate") ? String(rec.get("eventDate")) : undefined,
+      rootCause: rec.get("rootCause") ? String(rec.get("rootCause")) : undefined,
+      resolution: rec.get("resolution") ? String(rec.get("resolution")) : undefined,
+    }));
+
+    if (symptoms.length > 0 && incidents.length > 0) {
+      const symptomTerms = symptoms.map((s) => s.toLowerCase());
+      incidents = incidents.sort((a, b) => {
+        const aMatch = symptomTerms.some((t) => a.summary.toLowerCase().includes(t)) ? 1 : 0;
+        const bMatch = symptomTerms.some((t) => b.summary.toLowerCase().includes(t)) ? 1 : 0;
+        return bMatch - aMatch;
+      });
+    }
+
+    return incidents;
+  } catch {
+    return [];
+  } finally {
+    await session.close();
+  }
+}
+
+export async function getLessonsForAsset(asset: string): Promise<LessonRecord[]> {
+  const session = driver.session();
+  const assetNorm = asset.trim().toLowerCase();
+  try {
+    const result = await session.run(
+      `MATCH (e:Equipment)-[:EXPERIENCED]->(i:Incident)-[:LESSON]->(l:LessonLearned)
+       WHERE toLower(e.name) CONTAINS $assetNorm
+       OPTIONAL MATCH (d:Document)-[:CAPTURES]->(l)
+       OPTIONAL MATCH (p:Person)-[:RECOMMENDED]->(l)
+       RETURN DISTINCT l.label AS lesson, p.name AS expertName, d.fileName AS sourceDoc
+       LIMIT 20`,
+      { assetNorm }
+    );
+    return result.records.map((rec) => ({
+      text: String(rec.get("lesson") ?? ""),
+      asset,
+      expertName: rec.get("expertName") ? String(rec.get("expertName")) : undefined,
+      sourceDoc: rec.get("sourceDoc") ? String(rec.get("sourceDoc")) : undefined,
+    }));
+  } catch {
+    return [];
+  } finally {
+    await session.close();
+  }
+}
+
+export async function getExpertContributions(
+  personName: string
+): Promise<{ incidents: number; lessons: number; assets: string[] }> {
+  const session = driver.session();
+  const nameNorm = personName.trim().toLowerCase();
+  try {
+    const result = await session.run(
+      `MATCH (p:Person)
+       WHERE toLower(p.name) CONTAINS $nameNorm
+       OPTIONAL MATCH (p)-[:INVESTIGATED]->(i:Incident)
+       OPTIONAL MATCH (p)-[:RECOMMENDED]->(l:LessonLearned)
+       OPTIONAL MATCH (e:Equipment)-[:EXPERIENCED]->(i)
+       RETURN count(DISTINCT i) AS incidents, count(DISTINCT l) AS lessons,
+              collect(DISTINCT e.name) AS assets`,
+      { nameNorm }
+    );
+    const rec = result.records[0];
+    if (!rec) return { incidents: 0, lessons: 0, assets: [] };
+    return {
+      incidents: toNum(rec.get("incidents")),
+      lessons: toNum(rec.get("lessons")),
+      assets: (rec.get("assets") as string[] | null)?.filter(Boolean) ?? [],
+    };
+  } catch {
+    return { incidents: 0, lessons: 0, assets: [] };
+  } finally {
+    await session.close();
+  }
+}
+
+export async function countIncidents(): Promise<number> {
+  const session = driver.session();
+  try {
+    const result = await session.run(`MATCH (i:Incident) RETURN count(i) AS c`);
+    return toNum(result.records[0]?.get("c"));
+  } catch {
+    return 0;
   } finally {
     await session.close();
   }

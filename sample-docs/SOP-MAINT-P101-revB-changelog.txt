@@ -1,0 +1,27 @@
+SOP CHANGE LOG — SOP-MAINT-P101
+Document: Hydraulic Pump P-101 — Preventive & Corrective Maintenance
+Revision B — Effective 2024-10-01
+Author: Engineer Sharma
+Approver: Maintenance Manager
+
+REVISION B CHANGES (from Rev A)
+
+NEW: Alignment Procedure Rev B
+- Mandatory laser alignment verification after ANY bearing replacement on P-101
+- Maximum allowable offset: 0.05 mm (per Grundfos manual Section 6)
+- Alignment re-check required 30 days after foundation work within 5 m of P-101 base
+
+UPDATED: Mechanical seal inspection interval
+- Unchanged at 2000 operating hours
+- Added note: seal failures often follow misalignment — check alignment first
+
+UPDATED: Corrective action for high vibration
+- Step 1: Check alignment before ordering bearings
+- Step 2: Reference vendor manual Section 6 diagnostic sequence
+- Step 3: Escalate to Engineer Sharma if vibration > 7.1 mm/s RMS
+
+RATIONALE
+Lessons from INC-2023-P101 and INC-2024-P101 — bearing replacement without alignment
+caused repeat failures. Audit finding AUDIT-2024-MAINT-014.
+
+Document type: SOP

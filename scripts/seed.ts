@@ -2,6 +2,7 @@ import "./load-env";
 import * as fs from "fs";
 import * as path from "path";
 import { ingestFile } from "../src/lib/ingest/pipeline";
+import { mergeSeedAssetMetadata } from "../src/lib/graph/build";
 
 const SAMPLE_DIR = path.join(process.cwd(), "sample-docs");
 const SUPPORTED = new Set(["pdf", "png", "jpg", "jpeg", "tiff", "xlsx", "csv", "eml", "txt"]);
@@ -44,9 +45,21 @@ async function seed() {
     return;
   }
 
-  const files = fs
-    .readdirSync(SAMPLE_DIR)
-    .filter((f) => SUPPORTED.has(getExt(f)));
+  function collectFiles(dir: string): string[] {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const result: string[] = [];
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        result.push(...collectFiles(fullPath));
+      } else if (SUPPORTED.has(getExt(entry.name))) {
+        result.push(fullPath);
+      }
+    }
+    return result;
+  }
+
+  const files = collectFiles(SAMPLE_DIR);
 
   if (files.length === 0) {
     console.log("No supported files in sample-docs/. Nothing to ingest.");
@@ -58,13 +71,13 @@ async function seed() {
   let successCount = 0;
   let failCount = 0;
 
-  for (const file of files) {
-    const filePath = path.join(SAMPLE_DIR, file);
+  for (const filePath of files) {
+    const relName = path.relative(SAMPLE_DIR, filePath);
     const buffer = fs.readFileSync(filePath);
 
-    process.stdout.write(`  ${file.padEnd(40)} `);
+    process.stdout.write(`  ${relName.padEnd(40)} `);
 
-    const result = await ingestFile(buffer, file);
+    const result = await ingestFile(buffer, relName);
 
     if (result.status === "success" || result.status === "partial") {
       const totalEntities = Object.values(result.entitiesFound).reduce(
@@ -91,6 +104,11 @@ async function seed() {
   console.log(
     `\nDone — ${successCount} succeeded, ${failCount} failed.`
   );
+
+  console.log("Merging seed asset metadata into knowledge graph...");
+  await mergeSeedAssetMetadata();
+  console.log("Asset metadata merged.");
+
   console.log(
     "Vector store  → http://localhost:6333/dashboard#/collections/iki_chunks"
   );

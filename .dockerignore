@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.env*.local
+*.md
+.cursor
+.claude
+docker-data
+eng.traineddata
+Dockerfile
+.dockerignore
+railway.toml
+README.md
+terminals

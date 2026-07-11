@@ -26,7 +26,7 @@ export { buildAuditPack } from "./audit-pack";
 // Retrieval / judging tuning
 const TOP_K = 6;
 const EVIDENCE_FLOOR = 0.3; // cosine similarity below this = no meaningful evidence
-const MAX_CONCURRENCY = 3;
+const MAX_CONCURRENCY = 5;
 
 // ---- Output validation -------------------------------------------------------
 

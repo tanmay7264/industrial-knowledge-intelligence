@@ -1,23 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
-import { Sidebar } from "@/components/sidebar";
+import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "IKI — Industrial Knowledge Intelligence",
+  title: "Industrial Brain — Apex Steel Intelligence Platform",
   description:
-    "Turn scattered industrial documents into a cited, graph-aware question-answering system with automated compliance gap detection.",
+    "Unified industrial intelligence: Asset 360, RCA, proactive alerts, and organizational memory for plant operations.",
 };
 
 export default function RootLayout({
@@ -28,14 +34,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <div className="flex flex-1 flex-col pl-16">
-            {children}
-          </div>
-        </div>
+        <AppShell>{children}</AppShell>
         <Toaster position="top-center" theme="dark" richColors closeButton />
       </body>
     </html>

@@ -1,0 +1,21 @@
+OPERATOR SHIFT LOG
+Asset: P-301 Cooling Water Pump
+Date: 2026-05-22
+Shift: B (06:00–14:00)
+Operator: S. Reddy
+
+Observations:
+- 08:45 — Intermittent cavitation noise during peak cooling load
+- Suction gauge reading fluctuating 0.6–0.9 bar
+- Vibration felt at baseplate, reported to shift supervisor
+- No immediate shutdown — production priority
+
+Actions taken:
+- Increased cooling water bypass to reduce pump load temporarily
+- Notified maintenance for inspection scheduling
+
+Notes from previous shift:
+- Similar noise reported May 20 during afternoon peak
+- Bearing replaced April 8 — still having issues
+
+Recommendation: Check suction strainer and verify NPSH. Possible shaft misalignment per last inspection report.

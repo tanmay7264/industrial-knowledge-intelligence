@@ -1,0 +1,13 @@
+{
+  "id": "apex-steel",
+  "name": "Apex Steel Manufacturing Plant",
+  "location": "Jamshedpur Industrial Zone",
+  "areas": [
+    { "id": "blast-furnace", "name": "Blast Furnace" },
+    { "id": "coke-oven", "name": "Coke Oven" },
+    { "id": "rolling-mill", "name": "Rolling Mill" },
+    { "id": "utilities", "name": "Utilities" },
+    { "id": "compressor-house", "name": "Compressor House" },
+    { "id": "water-treatment", "name": "Water Treatment Plant" }
+  ]
+}

@@ -1,0 +1,17 @@
+MAINTENANCE RECORD — BEARING REPLACEMENT
+Asset: P-305 Cooling Water Pump
+Date: 2026-02-18
+Work Order: WO-2026-0210
+
+Work Performed:
+- Bearing replacement on drive end
+- Vibration post-work: 3.0 mm/s RMS
+- No alignment check documented
+
+Notes:
+- Same pump model as P-301 (Grundfos CR 64-2)
+- P-301 had bearing failure 38 days later — watch for repeat pattern
+- Cooling water circuit shared with P-301 and P-318
+
+Asset tag: P-305
+Plant area: Utilities

@@ -1,0 +1,18 @@
+{
+  "P-301": [
+    { "date": "2025-08-14", "type": "incident", "title": "Production downtime — 4 hours", "description": "Pump failure caused cooling water interruption to rolling mill.", "document": "P301-INCIDENT-2025-downtime.txt" },
+    { "date": "2026-01-12", "type": "maintenance", "title": "Bearing replacement", "description": "Drive-end bearing replaced during scheduled maintenance.", "document": "P301-MAINT-2026-01-bearing-replacement.txt" },
+    { "date": "2026-03-15", "type": "inspection", "title": "Elevated vibration detected", "description": "Vibration 5.8 mm/s RMS — alert level. Bearing temp 68°C.", "document": "P301-INSPECTION-2026-03-vibration.txt" },
+    { "date": "2026-04-08", "type": "maintenance", "title": "Bearing replaced again", "description": "Second bearing replacement in 4 months. No alignment check documented.", "document": "P301-MAINT-2026-04-bearing-replacement.txt" },
+    { "date": "2026-05-22", "type": "operations", "title": "Cavitation noise reported", "description": "Operator log: intermittent cavitation noise during peak load.", "document": "P301-OPERATOR-LOG-2026-05-cavitation.txt" },
+    { "date": "2026-06-01", "type": "sensor", "title": "Vibration trend increasing", "description": "Sensor trend: 4.2 → 5.1 → 6.4 mm/s over 30 days.", "document": "P301-SENSOR-TREND-vibration.txt" }
+  ],
+  "P-101": [
+    { "date": "2024-09-14", "type": "incident", "title": "High vibration incident", "description": "Vibration 6.8 mm/s with bearing temperature rise.", "document": "INCIDENT-2024-P101-vibration.txt" },
+    { "date": "2024-09-16", "type": "maintenance", "title": "Laser realignment", "description": "Alignment corrected per Rev B procedure.", "document": "WO-2024-0891-P101-realignment.txt" }
+  ],
+  "C-204": [
+    { "date": "2025-12-10", "type": "inspection", "title": "Last inspection", "description": "Quarterly inspection completed — minor findings.", "document": null },
+    { "date": "2026-05-28", "type": "sensor", "title": "Temperature anomaly", "description": "Discharge temperature exceeded threshold twice.", "document": null }
+  ]
+}

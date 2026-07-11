@@ -1,0 +1,25 @@
+SENSOR TREND DATA — VIBRATION
+Asset: P-301 Cooling Water Pump
+Sensor: VIB-301-DE (drive end accelerometer)
+Period: 2026-05-01 to 2026-06-01
+
+Date,Vibration_mm_s_RMS,Bearing_Temp_C,Suction_Pressure_bar
+2026-05-01,4.2,58,0.85
+2026-05-08,4.5,61,0.82
+2026-05-15,4.9,63,0.78
+2026-05-22,5.1,65,0.72
+2026-05-29,5.8,67,0.68
+2026-06-01,6.4,69,0.65
+
+Analysis:
+- Vibration increased 52% over 30 days
+- Pattern matches pre-failure trend before August 2025 incident
+- Suction pressure declining — possible cavitation onset
+- Bearing temperature rising correlates with vibration increase
+
+Alert threshold: 4.5 mm/s (exceeded since May 15)
+Critical threshold: 7.0 mm/s (approaching)
+
+Recommendation: Immediate alignment check and NPSH verification before next bearing failure.
+
+Cross-asset pattern: P-305 showing similar 30-day trend at 4.1 → 4.8 mm/s.

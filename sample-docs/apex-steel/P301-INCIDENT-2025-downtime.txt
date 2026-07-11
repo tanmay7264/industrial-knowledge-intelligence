@@ -1,0 +1,29 @@
+INCIDENT REPORT — PRODUCTION DOWNTIME
+Asset: P-301 Cooling Water Pump
+Date: 2025-08-14
+Incident ID: INC-2025-P301-001
+Severity: Major (4 hours downtime)
+
+Summary:
+Cooling water pump P-301 failed during peak production. Rolling mill cooling interrupted for 4 hours. Production loss estimated at ₹12 lakh.
+
+Timeline:
+- 14:20 — High vibration alarm, pump tripped on bearing temperature
+- 14:35 — Emergency bearing replacement initiated
+- 18:20 — Pump returned to service after bearing swap
+
+Root Cause (preliminary):
+- Bearing failure due to misalignment (not confirmed — no alignment check done)
+- Cavitation suspected based on operator logs from prior week
+
+Lessons Learned:
+- Bearing replacement without alignment verification leads to repeat failure
+- Cooling water pump fleet (P-301, P-305, P-318) needs group reliability review
+- NPSH verification should be part of every pump inspection
+
+Corrective Actions (open):
+- [ ] Complete formal RCA
+- [ ] Implement mandatory alignment check after bearing work
+- [ ] Review suction system design for all cooling water pumps
+
+Related equipment: P-305, P-318, HX-105

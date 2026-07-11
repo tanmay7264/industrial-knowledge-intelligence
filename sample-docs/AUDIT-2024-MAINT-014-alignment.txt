@@ -1,0 +1,26 @@
+INTERNAL AUDIT FINDING — AUDIT-2024-MAINT-014
+Date: 2024-11-05
+Auditor: Quality Assurance — Maintenance Practices
+Scope: Rotating equipment maintenance — alignment verification
+
+FINDING
+Work orders for bearing replacement on critical pumps (including P-101) were closed
+without documented alignment verification in 4 of 12 cases reviewed.
+
+ROOT CAUSE OF AUDIT FINDING
+Maintenance checklist did not mandate alignment check post bearing replacement.
+Alignment Procedure Rev B existed but was not referenced in work order templates.
+
+RECOMMENDATION
+1. Update CMMS work order template for bearing replacements to include alignment sign-off
+2. Link SOP-MAINT-P101 Rev B changelog to all P-101 maintenance work orders
+3. Retrain maintenance technicians on Alignment Procedure Rev B
+
+LESSONS LEARNED
+Alignment check skipped in previous failure (INC-2023-P101) directly contributed to
+repeat vibration event (INC-2024-P101). Organizational memory must capture this pattern.
+
+STATUS: Open — corrective action due 2025-03-31
+
+Document type: audit_report
+Asset: P-101

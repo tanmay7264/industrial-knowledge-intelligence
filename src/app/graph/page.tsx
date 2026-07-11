@@ -1,8 +1,7 @@
 "use client";
 
-import { TopNav } from "@/components/top-nav";
-
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,14 +19,22 @@ const NODE_COLORS: Record<NodeType, string> = {
   RegulatoryRef: "#ef4444",
   Person: "#22c55e",
   Parameter: "#a855f7",
+  Incident: "#dc2626",
+  Symptom: "#f59e0b",
+  RootCause: "#b45309",
+  Resolution: "#10b981",
+  Outcome: "#64748b",
+  LessonLearned: "#8b5cf6",
 };
 
 const NODE_TYPES: NodeType[] = [
   "Equipment",
+  "Incident",
   "RegulatoryRef",
   "Document",
   "Person",
   "Parameter",
+  "LessonLearned",
 ];
 
 const EXAMPLE_SEARCHES = [
@@ -38,9 +45,11 @@ const EXAMPLE_SEARCHES = [
   "inspector",
 ];
 
-export default function GraphPage() {
+function GraphPageInner() {
+  const searchParams = useSearchParams();
   const [term, setTerm] = useState("");
   const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<NodeType | "all">("all");
   const [subgraph, setSubgraph] = useState<SubgraphData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +92,14 @@ export default function GraphPage() {
     }
   }, []);
 
+  useEffect(() => {
+    const urlTerm = searchParams.get("term");
+    if (urlTerm) {
+      setTerm(urlTerm);
+      search(urlTerm);
+    }
+  }, [searchParams, search]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     search(term);
@@ -92,13 +109,27 @@ export default function GraphPage() {
     ? new Set(subgraph.nodes.map((n) => n.type))
     : new Set<NodeType>();
 
+  const filteredSubgraph =
+    subgraph && typeFilter !== "all"
+      ? {
+          ...subgraph,
+          nodes: subgraph.nodes.filter((n) => n.type === typeFilter),
+          edges: subgraph.edges.filter(
+            (e) =>
+              subgraph.nodes.some(
+                (n) =>
+                  (n.id === e.source || n.id === e.target) && n.type === typeFilter
+              )
+          ),
+        }
+      : subgraph;
+
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <TopNav />
+    <div className="flex flex-col h-[calc(100vh-3.5rem)]" style={{ background: "linear-gradient(135deg, #b8f0dc 0%, #d8d4f4 45%, #ead4f8 100%)" }}>
 
       {/* Search toolbar */}
-      <div className="border-b border-border px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-background/80 backdrop-blur-sm">
-        <h2 className="font-semibold text-sm shrink-0 hidden sm:block">
+      <div className="border-b border-white/40 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-white/60 backdrop-blur-md">
+        <h2 className="font-semibold text-sm shrink-0 hidden sm:block text-slate-800">
           Graph Explorer
         </h2>
         <form onSubmit={handleSubmit} className="flex gap-2 flex-1 max-w-lg">
@@ -106,18 +137,37 @@ export default function GraphPage() {
             value={term}
             onChange={(e) => setTerm(e.target.value)}
             placeholder="Search equipment tag, regulation, or keyword…"
-            className="flex-1 h-8 rounded-md border border-border bg-muted px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex-1 h-8 rounded-md border border-white/60 bg-white/70 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-violet-400 placeholder:text-slate-400"
           />
           <Button type="submit" size="sm" disabled={!term.trim() || loading}>
             {loading ? "…" : "Explore"}
           </Button>
         </form>
+        <div className="hidden md:flex flex-wrap gap-1">
+          <button
+            type="button"
+            onClick={() => setTypeFilter("all")}
+            className={`px-2 py-0.5 rounded text-[10px] border ${typeFilter === "all" ? "bg-primary/15 border-primary/40" : "border-border"}`}
+          >
+            All
+          </button>
+          {NODE_TYPES.filter((t) => presentTypes.has(t)).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTypeFilter(t)}
+              className={`px-2 py-0.5 rounded text-[10px] border ${typeFilter === t ? "bg-primary/15 border-primary/40" : "border-border"}`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Main */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-56 border-r border-border p-4 shrink-0 space-y-5 overflow-y-auto">
+        <aside className="w-56 border-r border-white/40 bg-white/50 backdrop-blur-sm p-4 shrink-0 space-y-5 overflow-y-auto">
           {/* Legend */}
           <div>
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
@@ -128,7 +178,7 @@ export default function GraphPage() {
                 <div
                   key={t}
                   className={`flex items-center gap-2 text-xs ${
-                    presentTypes.has(t) ? "text-foreground" : "text-muted-foreground"
+                    presentTypes.has(t) ? "text-slate-800" : "text-slate-400"
                   }`}
                 >
                   <span
@@ -192,7 +242,7 @@ export default function GraphPage() {
                       setTerm(s);
                       search(s);
                     }}
-                    className="block text-left w-full text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded hover:bg-muted transition-colors"
+                    className="block text-left w-full text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded hover:bg-white/60 transition-colors"
                   >
                     {s}
                   </button>
@@ -258,9 +308,9 @@ export default function GraphPage() {
             </div>
           )}
 
-          {subgraph && subgraph.nodes.length > 0 && !loading && (
+          {filteredSubgraph && filteredSubgraph.nodes.length > 0 && !loading && (
             <ForceGraphInner
-              data={subgraph}
+              data={filteredSubgraph}
               width={dims.w}
               height={dims.h}
             />
@@ -268,5 +318,13 @@ export default function GraphPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function GraphPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-muted-foreground">Loading graph…</div>}>
+      <GraphPageInner />
+    </Suspense>
   );
 }

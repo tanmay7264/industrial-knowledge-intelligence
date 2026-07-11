@@ -1,0 +1,34 @@
+INCIDENT REPORT — INC-2024-P101
+Date: 2024-09-14
+Asset: Hydraulic Pump P-101
+Reported by: Shift Operator Mehta
+Investigator: Engineer Sharma
+
+SYMPTOMS
+- Vibration increased from 2.1 to 6.8 mm/s RMS over 48 hours
+- Drive-end bearing temperature rose from 58°C to 74°C
+- No audible cavitation; flow rate stable at 180 m³/h
+
+FAILURE MODE
+High vibration with concurrent bearing temperature rise
+
+ROOT CAUSE
+Shaft misalignment between motor and pump coupling. Laser alignment check revealed
+0.18 mm offset — exceeds vendor limit of 0.05 mm. Previous work order WO-2024-0891
+addressed alignment but foundation settling caused re-misalignment within 6 months.
+
+RESOLUTION
+- Pump stopped and locked out per SOP-MAINT-P101
+- Laser realignment performed per Alignment Procedure Rev B
+- Coupling inspected — no damage
+- Vibration post-repair: 2.3 mm/s RMS
+
+OUTCOME
+Resolved — pump returned to service 2024-09-16
+
+LESSONS LEARNED
+- Alignment check must be repeated 30 days after any foundation work near P-101
+- Vibration + temperature together → check alignment before replacing bearings
+  (per Engineer Sharma field guidance)
+
+Document type: incident_report

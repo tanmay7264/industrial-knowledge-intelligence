@@ -18,6 +18,7 @@ const ZERO_COUNTS: EntityCounts = {
   regulatoryRefs: 0,
   personnel: 0,
   dates: 0,
+  incidents: 0,
 };
 
 function sumEntityCounts(chunks: ChunkWithEntities[]): EntityCounts {
@@ -29,6 +30,7 @@ function sumEntityCounts(chunks: ChunkWithEntities[]): EntityCounts {
       regulatoryRefs: acc.regulatoryRefs + c.entities.regulatoryRefs.length,
       personnel: acc.personnel + c.entities.personnel.length,
       dates: acc.dates + c.entities.dates.length,
+      incidents: acc.incidents + (c.entities.rca ? 1 : 0),
     }),
     { ...ZERO_COUNTS }
   );

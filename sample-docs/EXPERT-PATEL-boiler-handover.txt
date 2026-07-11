@@ -1,0 +1,27 @@
+EXPERT KNOWLEDGE CAPTURE — BOILER OPERATIONS HANDOVER
+Expert: Engineer Patel (Boiler & Pressure Systems Lead)
+Date: 2025-01-10
+Asset focus: Boiler B-11, Pressure Vessel V-201, Heat Exchanger HX-201
+Experience: 28 years
+Retirement planned: Q2 2027
+
+KEY OPERATIONAL INSIGHTS
+
+Boiler B-11:
+"The emergency shutdown procedure exists on paper but the field valve tagging was
+updated in 2022 without revising the SOP. New operators follow the wrong sequence.
+This is critical knowledge at risk — document the current valve lineup before I leave."
+
+Heat exchanger HX-201:
+"Tube bundle leaks present as pressure drop on the shell side before visible leaks.
+Monitor delta-P weekly during turnaround season."
+
+Pressure vessel V-201:
+"External corrosion on support saddles was the finding in the 2024 inspection — not
+the vessel shell. Don't confuse inspection report headlines with the actual failure mode."
+
+LESSONS FOR SUCCESSORS:
+- Always verify field conditions against the latest marked-up P&ID
+- Near-miss reports contain more actionable knowledge than closed incident summaries
+
+Document type: expert_interview

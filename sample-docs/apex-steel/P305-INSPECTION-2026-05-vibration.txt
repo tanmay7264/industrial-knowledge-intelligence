@@ -1,0 +1,17 @@
+INSPECTION REPORT — VIBRATION TREND
+Asset: P-305 Cooling Water Pump
+Date: 2026-05-25
+Inspector: A. Mehta
+
+Findings:
+- Vibration trending upward: 4.1 → 4.8 mm/s over 30 days
+- Pattern similar to P-301 pre-failure trend (14 days before Jan 2026 bearing failure)
+- Bearing temperature normal (58°C)
+- No cavitation noise reported yet
+
+Recommendation:
+- Apply P-301 RCA findings proactively
+- Schedule alignment check before vibration exceeds 5.5 mm/s
+- Group inspection of P-301, P-305, P-318 cooling water pump fleet
+
+Related: P-301 currently at Warning status with 6.4 mm/s vibration.

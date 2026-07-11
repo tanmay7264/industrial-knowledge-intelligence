@@ -1,0 +1,34 @@
+WORK ORDER — WO-2024-0891
+Date opened: 2024-09-14
+Date closed: 2024-09-16
+Asset: Hydraulic Pump P-101
+Priority: Urgent
+Assigned to: Maintenance Team Alpha
+Supervisor: Engineer Sharma
+
+WORK DESCRIPTION
+Corrective maintenance — high vibration alarm on P-101. Vibration 6.8 mm/s RMS,
+bearing temperature 74°C. Related incident INC-2024-P101.
+
+PROCEDURE REFERENCE
+- SOP-MAINT-P101 (Hydraulic Pump Maintenance)
+- Alignment Procedure Rev B
+
+WORK PERFORMED
+1. LOTO applied per permit PTW-2025-0142 template
+2. Laser alignment — corrected 0.18 mm offset to within 0.03 mm
+3. Coupling bolts torqued to spec
+4. Mechanical seal inspected — acceptable condition
+5. Test run — vibration 2.3 mm/s RMS, bearing temp 56°C
+
+PARTS USED
+None — alignment correction only
+
+RESOLUTION
+Successful realignment. Previous successful resolution pattern for P-101 vibration
+events. Do NOT replace bearings when alignment is the root cause.
+
+OUTCOME
+Closed — resolved
+
+Document type: work_order
