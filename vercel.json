@@ -1,0 +1,11 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "functions": {
+    "src/app/api/chat/route.ts": { "maxDuration": 60 },
+    "src/app/api/playbook/route.ts": { "maxDuration": 60 },
+    "src/app/api/rca/route.ts": { "maxDuration": 60 },
+    "src/app/api/ingest/route.ts": { "maxDuration": 300 },
+    "src/app/api/compliance/scan/route.ts": { "maxDuration": 300 }
+  }
+}
