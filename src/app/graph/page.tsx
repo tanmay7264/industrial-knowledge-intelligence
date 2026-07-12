@@ -6,6 +6,9 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HeroBand, HeroMetricCard } from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
+import { GitBranch, Network, Share2 } from "lucide-react";
 import type { SubgraphData, NodeType } from "@/lib/graph/types";
 
 const ForceGraphInner = dynamic(
@@ -124,12 +127,41 @@ function GraphPageInner() {
         }
       : subgraph;
 
+  const nodeCount = subgraph?.nodes.length ?? 0;
+  const edgeCount = subgraph?.edges.length ?? 0;
+  const typeCount = presentTypes.size;
+
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)]" style={{ background: "linear-gradient(135deg, #b8f0dc 0%, #d8d4f4 45%, #ead4f8 100%)" }}>
+    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+      <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+        <HeroBand cols={3} className="mb-0">
+          <HeroMetricCard
+            label="Nodes Found"
+            value={nodeCount || "—"}
+            icon={Network}
+            trend={nodeCount ? 10 : undefined}
+            sparklineData={sparklineFromSeed(nodeCount || 24)}
+          />
+          <HeroMetricCard
+            label="Edges"
+            value={edgeCount || "—"}
+            icon={Share2}
+            sparklineData={sparklineFromSeed(edgeCount || 48)}
+            sparklineColor="#10b981"
+          />
+          <HeroMetricCard
+            label="Entity Types"
+            value={typeCount || "—"}
+            icon={GitBranch}
+            trendLabel={query ? `Query: ${query}` : "Search to explore"}
+            sparklineData={sparklineFromSeed(typeCount || 6)}
+          />
+        </HeroBand>
+      </div>
 
       {/* Search toolbar */}
-      <div className="border-b border-white/40 px-4 sm:px-6 py-2.5 flex items-center gap-3 bg-white/60 backdrop-blur-md">
-        <h2 className="font-semibold text-sm shrink-0 hidden sm:block text-slate-800">
+      <div className="border-b border-border px-4 sm:px-6 py-2.5 flex items-center gap-3 glass shrink-0">
+        <h2 className="font-heading font-semibold text-sm shrink-0 hidden sm:block">
           Graph Explorer
         </h2>
         <form onSubmit={handleSubmit} className="flex gap-2 flex-1 max-w-lg">
@@ -137,7 +169,7 @@ function GraphPageInner() {
             value={term}
             onChange={(e) => setTerm(e.target.value)}
             placeholder="Search equipment tag, regulation, or keyword…"
-            className="flex-1 h-8 rounded-md border border-white/60 bg-white/70 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-violet-400 placeholder:text-slate-400"
+            className="flex-1 h-8 rounded-lg border border-input bg-muted/40 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
           />
           <Button type="submit" size="sm" disabled={!term.trim() || loading}>
             {loading ? "…" : "Explore"}
@@ -167,7 +199,7 @@ function GraphPageInner() {
       {/* Main */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-56 border-r border-white/40 bg-white/50 backdrop-blur-sm p-4 shrink-0 space-y-5 overflow-y-auto">
+        <aside className="w-56 border-r border-border bg-card/60 p-4 shrink-0 space-y-5 overflow-y-auto">
           {/* Legend */}
           <div>
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
@@ -178,7 +210,7 @@ function GraphPageInner() {
                 <div
                   key={t}
                   className={`flex items-center gap-2 text-xs ${
-                    presentTypes.has(t) ? "text-slate-800" : "text-slate-400"
+                    presentTypes.has(t) ? "text-foreground" : "text-muted-foreground/50"
                   }`}
                 >
                   <span
@@ -242,7 +274,7 @@ function GraphPageInner() {
                       setTerm(s);
                       search(s);
                     }}
-                    className="block text-left w-full text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded hover:bg-white/60 transition-colors"
+                    className="block text-left w-full text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded hover:bg-muted/60 transition-colors"
                   >
                     {s}
                   </button>

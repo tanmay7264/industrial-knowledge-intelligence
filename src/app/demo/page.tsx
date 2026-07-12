@@ -5,11 +5,17 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2 } from "lucide-react";
+import { Loader2, Play, Timer } from "lucide-react";
 import type { OperationalPlaybook } from "@/lib/agents/playbook-types";
 import type { RCAReport } from "@/lib/agents/rca-types";
 import type { KnowledgeRiskReport } from "@/lib/agents/knowledge-risk";
+import {
+  PageShell,
+  HeroBand,
+  HeroMetricCard,
+  ContentCard,
+} from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 
 type DemoMode = "brain" | "iom";
 type StepStatus = "idle" | "running" | "done" | "error";
@@ -42,6 +48,7 @@ export default function DemoPage() {
   const [riskReport, setRiskReport] = useState<KnowledgeRiskReport | null>(null);
 
   const steps = mode === "brain" ? BRAIN_STEPS : IOM_STEPS;
+  const doneCount = steps.filter((s) => statuses[s.id] === "done").length;
 
   const setStatus = (id: string, status: StepStatus) =>
     setStatuses((s) => ({ ...s, [id]: status }));
@@ -61,8 +68,7 @@ export default function DemoPage() {
           setRca(data);
         }
         if (id === "alert") {
-          const res = await fetch("/api/alerts");
-          await res.json();
+          await fetch("/api/alerts").then((r) => r.json());
         }
       } else {
         if (id === "risk") {
@@ -81,7 +87,14 @@ export default function DemoPage() {
           setPlaybook(data.playbook);
         }
       }
-      await new Promise((r) => setTimeout(r, id === "problem" || id === "upload" || id === "corpus" || id === "closing" || id === "graph" || id === "investigate" ? 700 : 0));
+      await new Promise((r) =>
+        setTimeout(
+          r,
+          ["problem", "upload", "corpus", "closing", "graph", "investigate"].includes(id)
+            ? 700
+            : 0
+        )
+      );
       setStatus(id, "done");
     } catch (e) {
       setStatus(id, "error");
@@ -99,78 +112,153 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-3xl font-bold">Demo</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {mode === "brain" ? "Industrial Brain — P-301 hero flow" : "IOM — P-101 organizational memory"}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant={mode === "brain" ? "default" : "outline"} size="sm" onClick={() => { setMode("brain"); setStatuses({}); }}>
+    <PageShell
+      title="Demo"
+      subtitle={
+        mode === "brain"
+          ? "Industrial Brain — P-301 hero flow"
+          : "IOM — P-101 organizational memory"
+      }
+      maxWidth="sm"
+      actions={
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={mode === "brain" ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setMode("brain");
+              setStatuses({});
+            }}
+          >
             Industrial Brain
           </Button>
-          <Button variant={mode === "iom" ? "default" : "outline"} size="sm" onClick={() => { setMode("iom"); setStatuses({}); }}>
+          <Button
+            variant={mode === "iom" ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setMode("iom");
+              setStatuses({});
+            }}
+          >
             IOM
           </Button>
-          <Button onClick={runAll} disabled={runningAll}>
-            {runningAll ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Running…</> : "Run full demo"}
+          <Button onClick={runAll} disabled={runningAll} className="glow-primary">
+            {runningAll ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Running…
+              </>
+            ) : (
+              "Run full demo"
+            )}
           </Button>
         </div>
-      </div>
-
+      }
+      hero={
+        <HeroBand>
+          <HeroMetricCard
+            label="Steps Complete"
+            value={`${doneCount}/${steps.length}`}
+            icon={Play}
+            trend={doneCount > 0 ? 100 : 0}
+            trendLabel={`${Math.round((doneCount / steps.length) * 100)}% progress`}
+            sparklineData={sparklineFromSeed(doneCount + steps.length)}
+          />
+          <HeroMetricCard
+            label="Demo Mode"
+            value={mode === "brain" ? "Brain" : "IOM"}
+            icon={Timer}
+            trendLabel={mode === "brain" ? "P-301 flow" : "P-101 memory"}
+            sparklineData={sparklineFromSeed(mode === "brain" ? 301 : 101)}
+          />
+          <HeroMetricCard
+            label="Est. Duration"
+            value="~3 min"
+            icon={Timer}
+            trendLabel="Full walkthrough"
+            sparklineData={sparklineFromSeed(180)}
+          />
+        </HeroBand>
+      }
+    >
       <ol className="space-y-4">
         {steps.map((step, i) => {
           const status = statuses[step.id] ?? "idle";
           return (
-            <li key={step.id} className="rounded-xl border bg-card p-5">
-              <div className="flex items-start gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary font-bold text-sm">
-                  {i + 1}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h2 className="font-semibold">{step.title}</h2>
-                    {status === "done" && <Badge className="bg-emerald-500">Done</Badge>}
-                    {status === "running" && <Badge className="animate-pulse">Running…</Badge>}
-                    {status === "error" && <Badge variant="destructive">Error</Badge>}
+            <li key={step.id}>
+              <ContentCard className="p-5">
+                <div className="flex items-start gap-4">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary font-bold text-sm">
+                    {i + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h2 className="font-semibold font-heading">{step.title}</h2>
+                      {status === "done" && (
+                        <Badge className="bg-emerald-500 text-white">Done</Badge>
+                      )}
+                      {status === "running" && (
+                        <Badge className="animate-pulse">Running…</Badge>
+                      )}
+                      {status === "error" && (
+                        <Badge variant="destructive">Error</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{step.caption}</p>
+
+                    {mode === "brain" && step.id === "rca" && rca && status === "done" && (
+                      <div className="mt-3 text-sm rounded-lg border border-border/60 p-3 bg-muted/40">
+                        <p>
+                          <strong>{rca.primaryHypothesis}</strong> — {rca.confidence}%
+                          confidence
+                        </p>
+                        <Link href="/rca" className="text-primary text-xs mt-1 inline-block">
+                          Open RCA →
+                        </Link>
+                      </div>
+                    )}
+
+                    {mode === "iom" &&
+                      (step.id === "playbook" || step.id === "evidence") &&
+                      playbook &&
+                      status === "done" && (
+                        <div className="mt-3 text-sm rounded-lg border border-border/60 p-3 bg-muted/40">
+                          <p>
+                            <strong>Root cause:</strong> {playbook.mostCommonRootCause}
+                          </p>
+                          <p className="mt-1">
+                            <strong>Resolution:</strong>{" "}
+                            {playbook.previousSuccessfulResolution}
+                          </p>
+                        </div>
+                      )}
+
+                    {mode === "iom" && step.id === "risk" && riskReport && status === "done" && (
+                      <div className="mt-3 text-sm">
+                        Aggregate risk score:{" "}
+                        <strong>{riskReport.aggregateRiskScore}%</strong>
+                      </div>
+                    )}
+
+                    {status === "idle" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-3"
+                        onClick={() => runStep(step.id, mode)}
+                      >
+                        Run step
+                      </Button>
+                    )}
                   </div>
-                  <p className="text-sm text-muted-foreground">{step.caption}</p>
-
-                  {mode === "brain" && step.id === "rca" && rca && status === "done" && (
-                    <div className="mt-3 text-sm border rounded-lg p-3 bg-muted/40">
-                      <p><strong>{rca.primaryHypothesis}</strong> — {rca.confidence}% confidence</p>
-                      <Link href="/rca" className="text-primary text-xs mt-1 inline-block">Open RCA →</Link>
-                    </div>
-                  )}
-
-                  {mode === "iom" && (step.id === "playbook" || step.id === "evidence") && playbook && status === "done" && (
-                    <div className="mt-3 text-sm border rounded-lg p-3 bg-muted/40">
-                      <p><strong>Root cause:</strong> {playbook.mostCommonRootCause}</p>
-                      <p className="mt-1"><strong>Resolution:</strong> {playbook.previousSuccessfulResolution}</p>
-                    </div>
-                  )}
-
-                  {mode === "iom" && step.id === "risk" && riskReport && status === "done" && (
-                    <div className="mt-3 text-sm">
-                      Aggregate risk score: <strong>{riskReport.aggregateRiskScore}%</strong>
-                    </div>
-                  )}
-
-                  {status === "idle" && (
-                    <Button size="sm" variant="outline" className="mt-3" onClick={() => runStep(step.id, mode)}>
-                      Run step
-                    </Button>
-                  )}
                 </div>
-              </div>
+              </ContentCard>
             </li>
           );
         })}
       </ol>
 
-      <div className="flex flex-wrap gap-3 pt-4">
+      <div className="flex flex-wrap gap-3 pt-2">
         {mode === "brain" ? (
           <>
             <Link href="/command"><Button variant="outline" size="sm">Command Center</Button></Link>
@@ -185,6 +273,6 @@ export default function DemoPage() {
           </>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

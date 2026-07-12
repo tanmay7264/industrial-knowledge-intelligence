@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { AlertTriangle, Clock, Repeat } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import {
+  PageShell,
+  HeroBand,
+  HeroMetricCard,
+  ContentCard,
+} from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 
 type IncidentsData = {
   incidents: {
@@ -35,22 +42,50 @@ export default function IncidentsPage() {
   }, []);
 
   const selectedIncident = data?.incidents.find((i) => i.id === selected);
+  const incidentCount = data?.incidents.length ?? 0;
+  const patternCount = data?.patterns.length ?? 0;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Incident & Failure Intelligence</h1>
-        <p className="text-sm text-muted-foreground">
-          Pattern detection and similar incident analysis
-        </p>
-      </header>
-
+    <PageShell
+      title="Incident & Failure Intelligence"
+      subtitle="Pattern detection and similar incident analysis"
+      hero={
+        <HeroBand>
+          <HeroMetricCard
+            label="Total Incidents"
+            value={incidentCount}
+            icon={AlertTriangle}
+            trend={-3}
+            sparklineData={sparklineFromSeed(incidentCount + 50)}
+          />
+          <HeroMetricCard
+            label="Recurring Patterns"
+            value={patternCount}
+            icon={Repeat}
+            trend={6}
+            sparklineData={sparklineFromSeed(patternCount + 60)}
+            sparklineColor="#f59e0b"
+          />
+          <HeroMetricCard
+            label="Avg Resolution"
+            value="4.2d"
+            icon={Clock}
+            trend={-12}
+            trendLabel="Days to close"
+            sparklineData={sparklineFromSeed(42)}
+            sparklineColor="#10b981"
+          />
+        </HeroBand>
+      }
+    >
       <div className="grid lg:grid-cols-2 gap-6">
-        <Card className="p-5">
-          <h2 className="font-semibold mb-4">Recurring Patterns</h2>
+        <ContentCard title="Recurring Patterns">
           <div className="space-y-3">
             {(data?.patterns ?? []).map((p) => (
-              <div key={p.id} className="border rounded-lg p-4 text-sm">
+              <div
+                key={p.id}
+                className="rounded-xl border border-border/60 p-4 text-sm"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-medium">{p.title}</p>
                   <Badge variant="outline">{p.confidence}%</Badge>
@@ -58,7 +93,11 @@ export default function IncidentsPage() {
                 <p className="text-muted-foreground mb-2">{p.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {p.assets.map((a) => (
-                    <Link key={a} href={`/assets/${a}`} className="text-xs text-primary underline">
+                    <Link
+                      key={a}
+                      href={`/assets/${a}`}
+                      className="text-xs text-primary underline"
+                    >
                       {a}
                     </Link>
                   ))}
@@ -66,51 +105,68 @@ export default function IncidentsPage() {
               </div>
             ))}
           </div>
-        </Card>
+        </ContentCard>
 
-        <Card className="p-5">
-          <h2 className="font-semibold mb-4">Similar Incident Finder</h2>
+        <ContentCard title="Similar Incident Finder">
           {selectedIncident ? (
             <div className="text-sm space-y-2">
               <p className="font-medium">{selectedIncident.summary}</p>
               <p className="text-muted-foreground">{selectedIncident.impact}</p>
               {selectedIncident.rootCause && (
-                <p><strong>Root cause:</strong> {selectedIncident.rootCause}</p>
+                <p>
+                  <strong>Root cause:</strong> {selectedIncident.rootCause}
+                </p>
               )}
-              <Link href={`/rca?asset=${selectedIncident.asset}`} className="text-primary underline">
+              <Link
+                href={`/rca?asset=${selectedIncident.asset}`}
+                className="text-primary underline"
+              >
                 Run RCA on {selectedIncident.asset}
               </Link>
-              <button type="button" onClick={() => setSelected(null)} className="block text-xs text-muted-foreground mt-2">
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                className="block text-xs text-muted-foreground mt-2"
+              >
                 ← Back to list
               </button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Select an incident below to analyze</p>
+            <p className="text-sm text-muted-foreground">
+              Select an incident below to analyze
+            </p>
           )}
-        </Card>
+        </ContentCard>
       </div>
 
-      <Card className="p-5">
-        <h2 className="font-semibold mb-4">Incident History</h2>
+      <ContentCard title="Incident History">
         <div className="space-y-2">
           {(data?.incidents ?? []).map((inc) => (
             <button
               key={inc.id}
               type="button"
               onClick={() => setSelected(inc.id)}
-              className="w-full text-left border rounded-lg p-4 text-sm hover:border-primary/40 transition-colors"
+              className="w-full text-left card-rich rounded-xl border border-border/60 p-4 text-sm"
             >
               <div className="flex items-center gap-2 mb-1">
-                <Link href={`/assets/${inc.asset}`} className="font-mono text-primary" onClick={(e) => e.stopPropagation()}>
+                <Link
+                  href={`/assets/${inc.asset}`}
+                  className="font-mono text-primary"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {inc.asset}
                 </Link>
-                {inc.date && <span className="text-xs text-muted-foreground">{inc.date}</span>}
+                {inc.date && (
+                  <span className="text-xs text-muted-foreground">
+                    {inc.date}
+                  </span>
+                )}
               </div>
               <p>{inc.summary}</p>
             </button>
           ))}
         </div>
-      </Card>
-    </div>
+      </ContentCard>
+    </PageShell>
   );
 }

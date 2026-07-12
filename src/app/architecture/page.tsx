@@ -1,13 +1,22 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Activity, Database, Server } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import {
+  PageShell,
+  HeroBand,
+  HeroMetricCard,
+  ContentCard,
+} from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 
 const MermaidDiagram = dynamic(
   () => import("@/components/mermaid-diagram").then((m) => m.MermaidDiagram),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-80 w-full rounded-lg" />,
+    loading: () => <Skeleton className="h-80 w-full rounded-xl" />,
   }
 );
 
@@ -78,77 +87,93 @@ const COMPONENTS: { layer: string; responsibility: string }[] = [
   { layer: "Provider abstraction", responsibility: "One seam for every LLM call — swap to on-prem with zero code changes" },
 ];
 
+const TECH_STACK = ["Next.js 15", "Qdrant", "Neo4j", "Groq", "Redis", "Vercel"];
+
 export default function ArchitecturePage() {
   return (
-    <div className="min-h-full flex flex-col" style={{ background: "linear-gradient(135deg, #b8f0dc 0%, #d8d4f4 45%, #ead4f8 100%)" }}>
+    <PageShell
+      title="System Architecture"
+      subtitle="Ingestion feeds vector store and knowledge graph; agentic router chooses retrieval path. Every model call passes through one provider seam."
+      maxWidth="lg"
+      hero={
+        <HeroBand>
+          <HeroMetricCard
+            label="Services Online"
+            value="4/4"
+            icon={Server}
+            trend={0}
+            trendLabel="Qdrant · Neo4j · Redis · Groq"
+            sparklineData={sparklineFromSeed(4)}
+            sparklineColor="#10b981"
+          />
+          <HeroMetricCard
+            label="Documents Indexed"
+            value={31}
+            icon={Database}
+            trend={12}
+            sparklineData={sparklineFromSeed(31)}
+          />
+          <HeroMetricCard
+            label="Avg Query Latency"
+            value="1.2s"
+            icon={Activity}
+            trend={-15}
+            sparklineData={sparklineFromSeed(12)}
+          />
+        </HeroBand>
+      }
+    >
+      <ContentCard>
+        <MermaidDiagram chart={ARCHITECTURE_CHART} id="architecture" />
+      </ContentCard>
 
-      <div className="max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-8">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800">Architecture</h1>
-          <p className="text-slate-600 text-sm max-w-2xl">
-            Ingestion feeds a vector store and a knowledge graph; an agentic router
-            chooses vector, graph, or hybrid retrieval, and a compliance agent runs
-            over the same corpus. Every model call passes through one provider seam.
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-sm p-4 sm:p-6">
-          <MermaidDiagram chart={ARCHITECTURE_CHART} id="architecture" />
-        </div>
-
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
-            Components
-          </h2>
-          <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
-              <tbody className="divide-y divide-slate-100">
-                {COMPONENTS.map((c) => (
-                  <tr key={c.layer} className="hover:bg-white/60">
-                    <td className="px-4 py-2.5 font-medium whitespace-nowrap w-44 text-slate-800">
-                      {c.layer}
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-500">
-                      {c.responsibility}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-white/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 space-y-2">
-          <h2 className="text-base font-semibold text-slate-800">
-            Provider abstraction & data sovereignty
-          </h2>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            No route or agent imports a model SDK directly — everything goes through{" "}
-            <code className="text-slate-800">getChatModel(&quot;fast&quot; | &quot;quality&quot;)</code>{" "}
-            and the embedding module. Because of that single seam, the deployment
-            target is just an environment variable:
-          </p>
-          <ul className="text-sm text-slate-600 space-y-1 list-disc pl-5">
-            <li>
-              <code className="text-slate-800">LLM_PROVIDER=groq</code> — hosted open
-              models for the fastest path.
-            </li>
-            <li>
-              <code className="text-slate-800">LLM_PROVIDER=ollama</code> — fully
-              on-prem open models for data residency, with zero code changes.
-            </li>
-            <li>
-              <code className="text-slate-800">LLM_PROVIDER=hosted</code> — any
-              OpenAI-compatible endpoint (private/regional cloud).
-            </li>
-          </ul>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Process data, incident records and compliance evidence can stay entirely
-            inside the customer&apos;s perimeter while the identical retrieval, graph,
-            and compliance logic runs unchanged.
-          </p>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {TECH_STACK.map((t) => (
+          <Badge key={t} variant="outline" className="text-xs">
+            {t}
+          </Badge>
+        ))}
       </div>
-    </div>
+
+      <ContentCard title="Components">
+        <div className="overflow-hidden rounded-xl border border-border/60">
+          <table className="w-full text-sm">
+            <tbody className="divide-y divide-border">
+              {COMPONENTS.map((c) => (
+                <tr key={c.layer} className="hover:bg-muted/30">
+                  <td className="px-4 py-2.5 font-medium whitespace-nowrap w-44">
+                    {c.layer}
+                  </td>
+                  <td className="px-4 py-2.5 text-muted-foreground">
+                    {c.responsibility}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </ContentCard>
+
+      <ContentCard title="Provider abstraction & data sovereignty">
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          No route or agent imports a model SDK directly — everything goes through{" "}
+          <code className="text-foreground bg-muted px-1 rounded">
+            getChatModel(&quot;fast&quot; | &quot;quality&quot;)
+          </code>
+          . Deployment target is an environment variable:
+        </p>
+        <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-5 mt-3">
+          <li>
+            <code className="text-foreground">LLM_PROVIDER=groq</code> — hosted open models
+          </li>
+          <li>
+            <code className="text-foreground">LLM_PROVIDER=ollama</code> — fully on-prem, zero code changes
+          </li>
+          <li>
+            <code className="text-foreground">LLM_PROVIDER=hosted</code> — any OpenAI-compatible endpoint
+          </li>
+        </ul>
+      </ContentCard>
+    </PageShell>
   );
 }

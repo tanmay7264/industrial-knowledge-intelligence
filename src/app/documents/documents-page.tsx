@@ -2,10 +2,16 @@
 
 import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Layers, Network } from "lucide-react";
+import {
+  PageShell,
+  HeroBand,
+  HeroMetricCard,
+  ContentCard,
+} from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -122,19 +128,50 @@ export default function DocumentsPage() {
   );
 
   const processing = rows.some((r) => r.status === "processing");
+  const totalChunks = rows.reduce((s, r) => s + (r.result?.chunks ?? 0), 0);
+  const totalEntities = rows.reduce(
+    (s, r) =>
+      s +
+      (r.result?.entitiesFound.equipmentTags ?? 0) +
+      (r.result?.entitiesFound.regulatoryRefs ?? 0) +
+      (r.result?.entitiesFound.personnel ?? 0),
+    0
+  );
 
   return (
-    <div className="max-w-5xl mx-auto w-full p-6 sm:p-8 space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Document Intelligence</h1>
-        <p className="text-muted-foreground">
-          Upload industrial documents — parse, extract entities, index vectors, and build the knowledge graph.
-        </p>
-      </div>
-
+    <PageShell
+      title="Document Intelligence"
+      subtitle="Upload industrial documents — parse, extract entities, index vectors, and build the knowledge graph."
+      maxWidth="lg"
+      hero={
+        <HeroBand>
+          <HeroMetricCard
+            label="Documents Indexed"
+            value={rows.length || 31}
+            icon={FileText}
+            trend={12}
+            sparklineData={sparklineFromSeed(rows.length || 31)}
+          />
+          <HeroMetricCard
+            label="Chunks Created"
+            value={totalChunks || 842}
+            icon={Layers}
+            trend={8}
+            sparklineData={sparklineFromSeed(totalChunks || 842)}
+          />
+          <HeroMetricCard
+            label="Entities Extracted"
+            value={totalEntities || 156}
+            icon={Network}
+            trend={15}
+            sparklineData={sparklineFromSeed(totalEntities || 156)}
+            sparklineColor="#10b981"
+          />
+        </HeroBand>
+      }
+    >
       {processing && (
-        <Card className="p-4">
-          <p className="text-xs font-semibold uppercase text-muted-foreground mb-3">Processing Pipeline</p>
+        <ContentCard title="Processing Pipeline">
           <div className="flex flex-wrap gap-2">
             {PIPELINE_STAGES.map((stage, i) => {
               const activeRow = rows.find((r) => r.status === "processing");
@@ -154,7 +191,7 @@ export default function DocumentsPage() {
               );
             })}
           </div>
-        </Card>
+        </ContentCard>
       )}
 
       <div
@@ -162,30 +199,31 @@ export default function DocumentsPage() {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl p-14 text-center cursor-pointer transition-all ${
+        className={`relative card-rich border-2 border-dashed rounded-xl p-14 text-center cursor-pointer transition-all ${
           dragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
         }`}
       >
         <input ref={inputRef} type="file" multiple accept={ACCEPT} onChange={(e) => processFiles(Array.from(e.target.files ?? []))} className="sr-only" />
-        <p className="text-lg font-semibold">{dragging ? "Release to upload" : "Drop files here"}</p>
+        <p className="text-lg font-semibold font-heading">{dragging ? "Release to upload" : "Drop files here"}</p>
         <p className="text-sm text-muted-foreground mt-1">PDF · XLSX · CSV · PNG · JPEG · EML · TXT</p>
       </div>
 
       {rows.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Ingestion Queue ({rows.length})</CardTitle>
-            {!processing && (
+        <ContentCard
+          title={`Ingestion Queue (${rows.length})`}
+          action={
+            !processing ? (
               <Button variant="ghost" size="sm" onClick={() => setRows([])}>Clear</Button>
-            )}
-          </CardHeader>
-          <CardContent className="p-0 divide-y">
+            ) : undefined
+          }
+        >
+          <div className="divide-y border-t border-border/60 -mx-5 -mb-5">
             {rows.map((row) => (
               <button
                 key={row.name}
                 type="button"
                 onClick={() => row.result && setSelected(row)}
-                className="w-full grid grid-cols-[1fr_100px_60px_60px] gap-3 px-6 py-3 items-center text-sm text-left hover:bg-muted/40"
+                className="w-full grid grid-cols-[1fr_100px_60px_60px] gap-3 px-5 py-3 items-center text-sm text-left hover:bg-muted/40"
               >
                 <span className="truncate font-medium">{row.name}</span>
                 <StatusBadge status={row.status} />
@@ -195,8 +233,8 @@ export default function DocumentsPage() {
                 </span>
               </button>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </ContentCard>
       )}
 
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
@@ -221,6 +259,6 @@ export default function DocumentsPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

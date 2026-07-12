@@ -28,3 +28,4 @@ docker-data/
 # Misc
 *.log
 *.tsbuildinfo
+.vercel

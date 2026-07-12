@@ -36,6 +36,8 @@ import {
   SlidersHorizontal,
   FileCheck2,
 } from "lucide-react";
+import { HeroBand, HeroMetricCard } from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 
 const VERDICTS: Verdict[] = ["COVERED", "PARTIAL", "GAP", "UNKNOWN"];
 
@@ -85,53 +87,6 @@ const VERDICT_RANK: Record<Verdict, number> = {
 };
 
 type SortKey = "severity" | "id" | "category";
-
-// ── Sub-components ──────────────────────────────────────────────────────────
-
-function StatCard({
-  verdict,
-  count,
-  total,
-  active,
-  onClick,
-}: {
-  verdict: Verdict;
-  count: number;
-  total: number;
-  active: boolean;
-  onClick: () => void;
-}) {
-  const m = VERDICT_META[verdict];
-  const Icon = m.icon;
-  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-
-  return (
-    <button
-      onClick={onClick}
-      className={`group relative flex flex-col gap-3 rounded-2xl border p-5 text-left transition-all duration-200 hover:scale-[1.02] ${m.bg} ${m.border} ${
-        active ? "ring-2 ring-offset-2 ring-offset-background ring-current scale-[1.02]" : ""
-      }`}
-    >
-      <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${m.bg} border ${m.border}`}>
-        <Icon className={`h-4 w-4 ${m.color}`} />
-      </div>
-      <div>
-        <p className={`text-3xl font-bold tabular-nums tracking-tight ${m.color}`}>{count}</p>
-        <p className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {verdict}
-        </p>
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="h-1 flex-1 rounded-full bg-muted overflow-hidden">
-          <div
-            style={{ background: m.chart, width: `${pct}%` }}
-          />
-        </div>
-        <span className="text-[10px] font-medium text-muted-foreground tabular-nums">{pct}%</span>
-      </div>
-    </button>
-  );
-}
 
 function VerdictPill({ verdict }: { verdict: Verdict }) {
   return (
@@ -238,30 +193,6 @@ function FindingRow({
   );
 }
 
-// ── Custom donut label ───────────────────────────────────────────────────────
-
-function DonutCenter({ total }: { total: number }) {
-  return (
-    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
-      <tspan
-        x="50%"
-        dy="-8"
-        className="fill-foreground"
-        style={{ fontSize: 28, fontWeight: 700, fill: "white" }}
-      >
-        {total}
-      </tspan>
-      <tspan
-        x="50%"
-        dy="22"
-        style={{ fontSize: 11, fill: "#64748b", fontWeight: 500 }}
-      >
-        requirements
-      </tspan>
-    </text>
-  );
-}
-
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export default function CompliancePage() {
@@ -365,46 +296,80 @@ export default function CompliancePage() {
   }, [report]);
 
   return (
-    <div className="flex flex-col min-h-full bg-background">
-      {/* ── Page header ── */}
-      <div className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b border-border/40 bg-background/80 backdrop-blur-md px-6">
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-          <h1 className="text-sm font-semibold">Compliance Dashboard</h1>
-          <span className="text-border">·</span>
-          <span className="text-xs text-muted-foreground">OISD · Factory Act · PESO</span>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          {report && (
-            <span className="hidden sm:inline text-[11px] text-muted-foreground">
-              Last scan: {new Date(report.generatedAt).toLocaleString()}
-            </span>
-          )}
-          {report && (
+    <div className="flex flex-col min-h-full">
+      <div className="p-6 pb-0 max-w-7xl mx-auto w-full space-y-6">
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5 mb-1">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <h1 className="font-heading text-2xl font-bold">Compliance Dashboard</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              OISD · Factory Act · PESO — conservative requirement verdicts
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {report && (
+              <span className="hidden sm:inline text-[11px] text-muted-foreground">
+                Last scan: {new Date(report.generatedAt).toLocaleString()}
+              </span>
+            )}
+            {report && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1.5"
+                onClick={exportAuditPack}
+                disabled={report.summary.COVERED === 0}
+              >
+                <Download className="h-3 w-3" />
+                Export Pack
+              </Button>
+            )}
             <Button
               size="sm"
-              variant="outline"
-              className="h-8 text-xs gap-1.5"
-              onClick={exportAuditPack}
-              disabled={report.summary.COVERED === 0}
+              className="h-8 text-xs gap-1.5 glow-primary"
+              onClick={runScan}
+              disabled={scanning}
             >
-              <Download className="h-3 w-3" />
-              Export Pack
+              <RefreshCw className={`h-3 w-3 ${scanning ? "animate-spin" : ""}`} />
+              {scanning ? "Scanning…" : report ? "Re-run" : "Run Scan"}
             </Button>
-          )}
-          <Button
-            size="sm"
-            className="h-8 text-xs gap-1.5"
-            onClick={runScan}
-            disabled={scanning}
-          >
-            <RefreshCw className={`h-3 w-3 ${scanning ? "animate-spin" : ""}`} />
-            {scanning ? "Scanning…" : report ? "Re-run" : "Run Scan"}
-          </Button>
-        </div>
+          </div>
+        </header>
+
+        {report && (
+          <HeroBand cols={4}>
+            {VERDICTS.map((v) => {
+              const m = VERDICT_META[v];
+              const count = report.summary[v];
+              const pct =
+                report.totalRequirements > 0
+                  ? Math.round((count / report.totalRequirements) * 100)
+                  : 0;
+              return (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setVerdictFilter((cur) => (cur === v ? "ALL" : v))}
+                  className="text-left"
+                >
+                  <HeroMetricCard
+                    label={v}
+                    value={count}
+                    icon={m.icon}
+                    trendLabel={`${pct}% of requirements`}
+                    sparklineData={sparklineFromSeed(count + pct)}
+                    sparklineColor={m.chart}
+                  />
+                </button>
+              );
+            })}
+          </HeroBand>
+        )}
       </div>
 
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
         {error && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400">
             {error}
@@ -452,20 +417,6 @@ export default function CompliancePage() {
 
         {report && (
           <>
-            {/* ── Stat cards ── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {VERDICTS.map((v) => (
-                <StatCard
-                  key={v}
-                  verdict={v}
-                  count={report.summary[v]}
-                  total={report.totalRequirements}
-                  active={verdictFilter === v}
-                  onClick={() => setVerdictFilter((cur) => (cur === v ? "ALL" : v))}
-                />
-              ))}
-            </div>
-
             {/* ── Main content grid ── */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 

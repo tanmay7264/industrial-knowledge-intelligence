@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Clock, FileSearch, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { detectQueryIntent } from "@/lib/rag/intent";
 import type { RCAReport } from "@/lib/agents/rca-types";
+import {
+  HeroBand,
+  HeroMetricCard,
+  ContentCard,
+  FilterPills,
+} from "@/components/page-shell";
+import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 
 type CopilotMode = "general" | "maintenance" | "rca" | "safety" | "compliance";
 
@@ -33,6 +41,7 @@ function CopilotInner() {
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<string>("");
   const [rcaReport, setRcaReport] = useState<RCAReport | null>(null);
+  const [queryCount] = useState(24);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -80,7 +89,8 @@ function CopilotInner() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: query.trim(),
-            docTypeFilter: activeMode === "safety" ? "incident_report" : undefined,
+            docTypeFilter:
+              activeMode === "safety" ? "incident_report" : undefined,
           }),
         });
         const ct = res.headers.get("Content-Type") ?? "";
@@ -99,15 +109,19 @@ function CopilotInner() {
             const events = buffer.split("\n\n");
             buffer = events.pop() ?? "";
             for (const block of events) {
-              const dataLine = block.split("\n").find((l) => l.startsWith("data: "));
-              const eventLine = block.split("\n").find((l) => l.startsWith("event: "));
+              const dataLine = block
+                .split("\n")
+                .find((l) => l.startsWith("data: "));
+              const eventLine = block
+                .split("\n")
+                .find((l) => l.startsWith("event: "));
               if (!dataLine || !eventLine) continue;
               const payload = JSON.parse(dataLine.slice(6));
               if (eventLine.slice(7).trim() === "text") {
                 text += payload.chunk as string;
                 setAnswer(text);
               } else if (eventLine.slice(7).trim() === "done") {
-                setAnswer(payload.answer as string ?? text);
+                setAnswer((payload.answer as string) ?? text);
               }
             }
           }
@@ -122,45 +136,63 @@ function CopilotInner() {
   );
 
   return (
-    <div className="flex flex-col h-full max-w-3xl mx-auto w-full">
-      <div className="p-6 pb-0">
-        <h1 className="text-2xl font-bold">AI Copilot</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Central intelligence interface — search, analyze, investigate
-        </p>
-        <div className="flex flex-wrap gap-2 mt-4">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => setMode(m.id)}
-              className={`px-3 py-1 rounded-full text-xs border transition-colors ${
-                mode === m.id
-                  ? "bg-primary/15 border-primary/40 text-primary"
-                  : "border-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+    <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
+      <div className="p-6 space-y-6 shrink-0">
+        <header>
+          <h1 className="font-heading text-2xl font-bold">AI Copilot</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Central intelligence interface — search, analyze, investigate
+          </p>
+        </header>
+
+        <HeroBand>
+          <HeroMetricCard
+            label="Queries Today"
+            value={queryCount}
+            icon={MessageSquare}
+            trend={22}
+            sparklineData={sparklineFromSeed(queryCount)}
+          />
+          <HeroMetricCard
+            label="Avg Response"
+            value="1.2s"
+            icon={Clock}
+            trend={-15}
+            trendLabel="Faster than last week"
+            sparklineData={sparklineFromSeed(120)}
+            sparklineColor="#10b981"
+          />
+          <HeroMetricCard
+            label="Evidence Citations"
+            value="4.8"
+            icon={FileSearch}
+            trend={8}
+            trendLabel="Avg per answer"
+            sparklineData={sparklineFromSeed(48)}
+          />
+        </HeroBand>
+
+        <FilterPills
+          options={MODES.map((m) => ({ id: m.id, label: m.label }))}
+          value={mode}
+          onChange={(id) => setMode(id as CopilotMode)}
+        />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 space-y-4">
         {!answer && !rcaReport && !loading && (
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => {
-                setInput(HERO_QUERY);
-                setMode("rca");
-                handleSubmit(HERO_QUERY, "rca");
-              }}
-              className="w-full text-left px-4 py-3 rounded-lg border border-primary/30 bg-primary/5 hover:bg-primary/10 text-sm"
-            >
-              <span className="text-primary font-medium">Hero demo:</span> {HERO_QUERY}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setInput(HERO_QUERY);
+              setMode("rca");
+              handleSubmit(HERO_QUERY, "rca");
+            }}
+            className="w-full text-left card-rich rounded-xl border border-primary/30 p-4 text-sm hover:border-primary/50"
+          >
+            <span className="text-primary font-medium">Hero demo:</span>{" "}
+            {HERO_QUERY}
+          </button>
         )}
 
         {loading && (
@@ -171,57 +203,73 @@ function CopilotInner() {
         )}
 
         {rcaReport && (
-          <div className="space-y-4 border rounded-xl p-4">
-            <div className="flex items-center justify-between">
+          <ContentCard>
+            <div className="flex items-center justify-between mb-3">
               <h2 className="font-semibold">RCA — {rcaReport.asset}</h2>
               <Badge>{rcaReport.confidence}% confidence</Badge>
             </div>
-            <p className="text-sm"><strong>Primary hypothesis:</strong> {rcaReport.primaryHypothesis}</p>
+            <p className="text-sm">
+              <strong>Primary hypothesis:</strong> {rcaReport.primaryHypothesis}
+            </p>
             {rcaReport.alternativeHypotheses.length > 0 && (
-              <div className="text-sm">
+              <div className="text-sm mt-3">
                 <strong>Alternatives:</strong>
                 <ul className="list-disc ml-4 mt-1">
                   {rcaReport.alternativeHypotheses.map((h, i) => (
-                    <li key={i}>{h.cause} ({h.confidence}%)</li>
+                    <li key={i}>
+                      {h.cause} ({h.confidence}%)
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
             {rcaReport.correctiveActions.length > 0 && (
-              <div className="text-sm">
+              <div className="text-sm mt-3">
                 <strong>Recommended actions:</strong>
                 <ul className="list-disc ml-4 mt-1">
                   {rcaReport.correctiveActions.map((a, i) => (
-                    <li key={i}>{a.action} — {a.urgency}</li>
+                    <li key={i}>
+                      {a.action} — {a.urgency}
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
             {rcaReport.relatedAssets.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {rcaReport.relatedAssets.map((t) => (
-                  <Link key={t} href={`/assets/${t}`} className="text-xs text-primary underline">{t}</Link>
+                  <Link
+                    key={t}
+                    href={`/assets/${t}`}
+                    className="text-xs text-primary underline"
+                  >
+                    {t}
+                  </Link>
                 ))}
               </div>
             )}
-            <Link href="/rca" className="text-sm text-primary">Open full RCA workspace →</Link>
-          </div>
+            <Link href="/rca" className="text-sm text-primary mt-3 inline-block">
+              Open full RCA workspace →
+            </Link>
+          </ContentCard>
         )}
 
         {answer && (
-          <div className="prose prose-sm dark:prose-invert max-w-none border rounded-xl p-4">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
-          </div>
+          <ContentCard>
+            <div className="prose prose-sm max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
+            </div>
+          </ContentCard>
         )}
       </div>
 
-      <div className="border-t p-4">
+      <div className="border-t glass p-4 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(input);
           }}
-          className="flex gap-2"
+          className="flex gap-2 max-w-4xl mx-auto"
         >
           <Textarea
             value={input}
