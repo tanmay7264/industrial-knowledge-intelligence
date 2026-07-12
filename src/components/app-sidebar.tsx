@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface NavItem {
   href: string;
@@ -54,11 +55,12 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
     <Link
       href={item.href}
       title={item.label}
-      className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
+      className={cn(
+        "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
         active
-          ? "bg-primary/15 text-primary ring-1 ring-primary/30"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-      }`}
+          ? "bg-sidebar-primary/20 text-sidebar-primary ring-1 ring-sidebar-primary/40"
+          : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+      )}
     >
       <Icon className="h-4 w-4 shrink-0" />
       {!collapsed && <span className="truncate">{item.label}</span>}
@@ -71,20 +73,22 @@ export function AppSidebar() {
 
   return (
     <aside
-      className={`flex flex-col border-r border-border bg-background/95 shrink-0 transition-all duration-200 ${
+      className={cn(
+        "flex flex-col shrink-0 transition-all duration-200",
+        "bg-sidebar text-sidebar-foreground border-r border-sidebar-border",
         collapsed ? "w-14" : "w-56"
-      }`}
+      )}
     >
-      <div className="flex h-14 items-center gap-2 border-b border-border px-3 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 border border-primary/30 glow-primary shrink-0">
-          <Brain className="h-4 w-4 text-primary" />
+      <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-3 shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sidebar-primary/20 border border-sidebar-primary/40 shrink-0">
+          <Brain className="h-4 w-4 text-sidebar-primary" />
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="font-heading font-bold text-sm tracking-tight truncate">
+            <p className="font-heading font-bold text-sm tracking-tight truncate text-sidebar-foreground">
               Industrial Brain
             </p>
-            <p className="text-[10px] text-muted-foreground truncate">
+            <p className="text-[10px] text-sidebar-foreground/55 truncate">
               Apex Steel · IOM
             </p>
           </div>
@@ -93,7 +97,7 @@ export function AppSidebar() {
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-4">
         {!collapsed && (
-          <p className="px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="px-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/45">
             Industrial Brain
           </p>
         )}
@@ -104,7 +108,7 @@ export function AppSidebar() {
         </div>
 
         {!collapsed && (
-          <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/45">
             Organizational Memory
           </p>
         )}
@@ -118,7 +122,7 @@ export function AppSidebar() {
       <button
         type="button"
         onClick={() => setCollapsed((c) => !c)}
-        className="flex h-10 items-center justify-center border-t border-border text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+        className="flex h-10 items-center justify-center border-t border-sidebar-border text-sidebar-foreground/55 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {collapsed ? (
