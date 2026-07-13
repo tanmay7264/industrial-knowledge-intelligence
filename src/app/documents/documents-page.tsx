@@ -199,7 +199,7 @@ export default function DocumentsPage() {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
-        className={`relative card-rich border-2 border-dashed rounded-xl p-14 text-center cursor-pointer transition-all ${
+        className={`relative card-rich border-2 border-dashed rounded-xl p-8 sm:p-14 text-center cursor-pointer transition-all ${
           dragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
         }`}
       >
@@ -217,20 +217,25 @@ export default function DocumentsPage() {
             ) : undefined
           }
         >
-          <div className="divide-y border-t border-border/60 -mx-5 -mb-5">
+          <div className="divide-y border-t border-border/60 -mx-4 sm:-mx-5 -mb-4 sm:-mb-5">
             {rows.map((row) => (
               <button
                 key={row.name}
                 type="button"
                 onClick={() => row.result && setSelected(row)}
-                className="w-full grid grid-cols-[1fr_100px_60px_60px] gap-3 px-5 py-3 items-center text-sm text-left hover:bg-muted/40"
+                className="w-full flex flex-col sm:grid sm:grid-cols-[1fr_100px_60px_60px] gap-2 sm:gap-3 px-4 sm:px-5 py-3 items-start sm:items-center text-sm text-left hover:bg-muted/40"
               >
-                <span className="truncate font-medium">{row.name}</span>
-                <StatusBadge status={row.status} />
-                <NumCell value={row.result?.chunks} />
-                <span className="text-xs text-muted-foreground">
-                  {row.result ? "Details →" : row.status === "processing" ? `${(row.stage ?? 0) + 1}/9` : "—"}
-                </span>
+                <span className="truncate font-medium w-full">{row.name}</span>
+                <div className="flex flex-wrap items-center gap-2 sm:contents">
+                  <StatusBadge status={row.status} />
+                  <span className="tabular-nums text-muted-foreground sm:text-foreground">
+                    <span className="sm:hidden text-xs mr-1">Chunks:</span>
+                    <NumCell value={row.result?.chunks} />
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {row.result ? "Details →" : row.status === "processing" ? `${(row.stage ?? 0) + 1}/9` : "—"}
+                  </span>
+                </div>
               </button>
             ))}
           </div>

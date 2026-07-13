@@ -149,9 +149,9 @@ function FindingRow({
 }) {
   const m = VERDICT_META[row.verdict];
   return (
-    <div className="group flex items-start gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors border-b border-border/40 last:border-0">
+    <div className="group flex flex-col sm:flex-row sm:items-start gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors border-b border-border/40 last:border-0">
       {/* Verdict indicator */}
-      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${m.bg} border ${m.border}`}>
+      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${m.bg} border ${m.border}`}>
         <m.icon className={`h-3.5 w-3.5 ${m.color}`} />
       </div>
 
@@ -172,7 +172,7 @@ function FindingRow({
       </div>
 
       {/* Evidence chips */}
-      <div className="shrink-0 flex flex-col gap-1 items-end">
+      <div className="shrink-0 flex flex-row sm:flex-col flex-wrap gap-1 sm:items-end">
         {row.evidence.length > 0 ? (
           row.evidence.slice(0, 2).map((e) => (
             <button
@@ -297,12 +297,12 @@ export default function CompliancePage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <div className="p-6 pb-0 max-w-7xl mx-auto w-full space-y-6">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+      <div className="p-4 sm:p-6 pb-0 max-w-7xl mx-auto w-full min-w-0 space-y-4 sm:space-y-6">
+        <header className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
             <div className="flex items-center gap-2.5 mb-1">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              <h1 className="font-heading text-2xl font-bold">Compliance Dashboard</h1>
+              <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
+              <h1 className="font-heading text-xl sm:text-2xl font-bold">Compliance Dashboard</h1>
             </div>
             <p className="text-sm text-muted-foreground">
               OISD · Factory Act · PESO — conservative requirement verdicts
@@ -369,7 +369,7 @@ export default function CompliancePage() {
         )}
       </div>
 
-      <div className="flex-1 p-6 space-y-6 max-w-7xl mx-auto w-full">
+      <div className="flex-1 p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto w-full min-w-0">
         {error && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400">
             {error}
@@ -423,8 +423,8 @@ export default function CompliancePage() {
               {/* ── Findings list (2/3) ── */}
               <div className="xl:col-span-2 flex flex-col gap-3">
                 {/* Filter bar */}
-                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-3">
-                  <div className="relative flex-1 min-w-[180px]">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-3">
+                  <div className="relative flex-1 w-full sm:min-w-[180px]">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                     <input
                       value={search}

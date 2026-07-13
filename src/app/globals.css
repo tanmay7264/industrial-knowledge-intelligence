@@ -128,8 +128,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    overflow-x: hidden;
+  }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans overflow-x-hidden;
     background-image:
       radial-gradient(60% 50% at 50% -10%, oklch(0.56 0.16 222 / 0.07), transparent 70%),
       radial-gradient(40% 40% at 100% 0%,  oklch(0.65 0.14 78  / 0.04), transparent 70%);

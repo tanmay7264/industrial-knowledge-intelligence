@@ -37,7 +37,7 @@ export function GlobalSearch() {
     (results.assets.length > 0 || results.alerts.length > 0);
 
   return (
-    <div className="relative flex-1 max-w-xl">
+    <div className="relative flex-1 min-w-0 max-w-xl">
       <form onSubmit={handleSubmit} className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
@@ -45,8 +45,8 @@ export function GlobalSearch() {
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => query.length >= 2 && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="Ask Industrial Brain anything…"
-          className="pl-9 h-9 text-sm bg-muted/40 border-border"
+          placeholder="Search…"
+          className="pl-9 h-9 text-sm bg-muted/40 border-border w-full min-w-0 sm:placeholder:text-muted-foreground"
         />
       </form>
 

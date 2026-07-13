@@ -136,10 +136,10 @@ function CopilotInner() {
   );
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
-      <div className="p-6 space-y-6 shrink-0">
+    <div className="flex flex-col h-full max-w-4xl mx-auto w-full min-w-0">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 shrink-0">
         <header>
-          <h1 className="font-heading text-2xl font-bold">AI Copilot</h1>
+          <h1 className="font-heading text-xl sm:text-2xl font-bold">AI Copilot</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Central intelligence interface — search, analyze, investigate
           </p>
@@ -179,7 +179,7 @@ function CopilotInner() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 space-y-4 min-w-0">
         {!answer && !rcaReport && !loading && (
           <button
             type="button"
@@ -263,23 +263,23 @@ function CopilotInner() {
         )}
       </div>
 
-      <div className="border-t glass p-4 shrink-0">
+      <div className="border-t glass p-3 sm:p-4 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit(input);
           }}
-          className="flex gap-2 max-w-4xl mx-auto"
+          className="flex flex-col sm:flex-row gap-2 max-w-4xl mx-auto w-full"
         >
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask Industrial Brain anything…"
-            className="min-h-[44px] resize-none flex-1"
+            className="min-h-[44px] resize-none flex-1 min-w-0"
             rows={1}
             disabled={loading}
           />
-          <Button type="submit" disabled={!input.trim() || loading}>
+          <Button type="submit" disabled={!input.trim() || loading} className="shrink-0 sm:self-end">
             {loading ? "…" : "Ask"}
           </Button>
         </form>

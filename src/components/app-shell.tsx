@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Play } from "lucide-react";
+import { Menu, Play } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { GlobalSearch } from "@/components/global-search";
+import { SidebarProvider, useSidebar } from "@/components/sidebar-context";
+import { Button } from "@/components/ui/button";
 
 type HealthData = Record<string, "ok" | "down">;
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+function AppShellInner({ children }: { children: React.ReactNode }) {
   const [health, setHealth] = useState<HealthData | null>(null);
+  const { openMobile } = useSidebar();
 
   useEffect(() => {
     const fetchHealth = () =>
@@ -28,12 +31,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     health !== null && Object.values(health).every((s) => s === "ok");
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-[100dvh] overflow-hidden bg-background">
       <AppSidebar />
       <div className="flex flex-col flex-1 min-w-0">
-        <header className="sticky top-0 z-30 h-14 shrink-0 border-b border-border glass flex items-center gap-3 px-4">
+        <header className="sticky top-0 z-30 h-14 shrink-0 border-b border-border glass flex items-center gap-2 sm:gap-3 px-3 sm:px-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 lg:hidden"
+            onClick={openMobile}
+            aria-label="Open navigation menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
           <GlobalSearch />
-          <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
             <div
               className="hidden sm:flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground"
               title={allOnline ? "All systems online" : "Degraded"}
@@ -47,21 +60,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       : "bg-destructive"
                 }`}
               />
-              <span>
+              <span className="hidden sm:inline">
                 {health === null ? "Checking" : allOnline ? "Online" : "Degraded"}
               </span>
             </div>
             <Link
               href="/demo"
-              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap glow-primary"
+              className="flex items-center gap-1.5 rounded-md bg-primary px-2.5 sm:px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap glow-primary"
             >
               <Play className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Demo</span>
             </Link>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain">
+          {children}
+        </main>
       </div>
     </div>
+  );
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppShellInner>{children}</AppShellInner>
+    </SidebarProvider>
   );
 }

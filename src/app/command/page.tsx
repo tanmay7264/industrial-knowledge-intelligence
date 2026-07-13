@@ -192,17 +192,22 @@ export default function CommandCenterPage() {
       <ContentCard title="Knowledge Activity Feed">
         <div className="space-y-3">
           {(data?.activityFeed ?? []).map((item) => (
-            <div key={item.id} className="flex items-start gap-3 text-sm">
-              <span className="text-xs text-muted-foreground tabular-nums shrink-0 w-36">
+            <div
+              key={item.id}
+              className="flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-3 text-sm border-b border-border/60 pb-3 last:border-0 last:pb-0"
+            >
+              <span className="text-xs text-muted-foreground tabular-nums shrink-0">
                 {new Date(item.timestamp).toLocaleString()}
               </span>
-              <Badge variant="outline" className="text-[10px] shrink-0">
-                {item.type}
-              </Badge>
-              <p className="flex-1">{item.message}</p>
+              <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+                <Badge variant="outline" className="text-[10px] shrink-0">
+                  {item.type}
+                </Badge>
+                <p className="flex-1 min-w-0 break-words">{item.message}</p>
+              </div>
               <Link
                 href={`/assets/${item.assetTag}`}
-                className="text-xs text-primary shrink-0"
+                className="text-xs text-primary shrink-0 sm:self-start"
               >
                 {item.assetTag}
               </Link>

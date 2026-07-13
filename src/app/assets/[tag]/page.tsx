@@ -118,13 +118,15 @@ export default function AssetDetailPage() {
       </ContentCard>
 
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="graph">Relationships</TabsTrigger>
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto no-scrollbar">
+          <TabsList className="w-max min-w-full sm:w-fit">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="incidents">Incidents</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="graph">Relationships</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="space-y-4 mt-4">
           <ContentCard title="Active Alerts">
@@ -210,7 +212,7 @@ export default function AssetDetailPage() {
         </TabsContent>
 
         <TabsContent value="graph" className="mt-4">
-          {subgraph && subgraph.nodes.length > 0 ? (
+          {subgraph?.nodes && subgraph.nodes.length > 0 ? (
             <>
               <ContentCard className="p-2">
                 <SubgraphView data={subgraph} height={360} />
