@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import type { SubgraphData, NodeType } from "@/lib/graph/types";
 
@@ -7,6 +7,8 @@ interface FGNode {
   name: string;
   nodeType: NodeType;
   color: string;
+  date?: string;
+  docType?: string;
   val?: number;
   // set by the force simulation at runtime
   x?: number;
@@ -38,30 +40,54 @@ interface Props {
   width: number;
   height: number;
   onNodeClick?: (node: FGNode) => void;
+  /** Node to visually highlight and pan/zoom to — drives "Follow AI Reasoning". */
+  highlightedNodeId?: string | null;
 }
 
-export default function ForceGraphInner({ data, width, height, onNodeClick }: Props) {
+export default function ForceGraphInner({
+  data,
+  width,
+  height,
+  onNodeClick,
+  highlightedNodeId,
+}: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fgRef = useRef<any>(null);
 
-  const graphData = {
-    nodes: data.nodes.map((n) => ({
-      id: n.id,
-      name: n.label,
-      nodeType: n.type,
-      color: NODE_COLORS[n.type] ?? "#888",
-      val: n.type === "Document" ? 3 : 2,
-    })) as FGNode[],
-    links: data.edges.map((e) => ({
-      source: e.source,
-      target: e.target,
-      label: e.label,
-    })) as FGLink[],
-  };
+  // Memoized on `data` only, so highlighting a node doesn't recreate node
+  // objects and lose the simulation's settled x/y positions.
+  const graphData = useMemo(
+    () => ({
+      nodes: data.nodes.map((n) => ({
+        id: n.id,
+        name: n.label,
+        nodeType: n.type,
+        date: n.date,
+        docType: n.docType,
+        color: NODE_COLORS[n.type] ?? "#888",
+        val: n.type === "Document" ? 3 : 2,
+      })) as FGNode[],
+      links: data.edges.map((e) => ({
+        source: e.source,
+        target: e.target,
+        label: e.label,
+      })) as FGLink[],
+    }),
+    [data]
+  );
 
   const paintNode = useCallback(
     (node: FGNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const r = (node.val ?? 2) * 2.5;
+
+      if (node.id === highlightedNodeId) {
+        ctx.beginPath();
+        ctx.arc(node.x!, node.y!, r + 4, 0, 2 * Math.PI);
+        ctx.strokeStyle = "#facc15";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
       ctx.beginPath();
       ctx.arc(node.x!, node.y!, r, 0, 2 * Math.PI);
       ctx.fillStyle = node.color;
@@ -74,7 +100,7 @@ export default function ForceGraphInner({ data, width, height, onNodeClick }: Pr
       ctx.fillStyle = "rgba(255,255,255,0.9)";
       ctx.fillText(label, node.x!, node.y! + r + fontSize * 0.9);
     },
-    []
+    [highlightedNodeId]
   );
 
   const paintLink = useCallback(
@@ -93,6 +119,16 @@ export default function ForceGraphInner({ data, width, height, onNodeClick }: Pr
     },
     []
   );
+
+  // Pan/zoom the camera to whichever node is being highlighted.
+  useEffect(() => {
+    if (!highlightedNodeId || !fgRef.current) return;
+    const node = graphData.nodes.find((n) => n.id === highlightedNodeId);
+    if (node?.x != null && node?.y != null) {
+      fgRef.current.centerAt(node.x, node.y, 500);
+      fgRef.current.zoom(2.5, 500);
+    }
+  }, [highlightedNodeId, graphData]);
 
   return (
     <ForceGraph2D

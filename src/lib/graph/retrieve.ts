@@ -61,6 +61,16 @@ function serializeSubgraph(nodes: GraphNode[], edges: GraphEdge[]): string {
   return lines.join("\n");
 }
 
+// Some callers' Cypher includes extra optional columns (date/docType), others
+// don't — Record.get() throws on an unknown key, so read those defensively.
+function safeGet(rec: { get: (key: string) => string | null }, key: string): string | null {
+  try {
+    return rec.get(key);
+  } catch {
+    return null;
+  }
+}
+
 function buildGraphFromRecords(
   records: Array<{ get: (key: string) => string | null }>
 ): Pick<SubgraphData, "nodes" | "edges"> {
@@ -76,12 +86,28 @@ function buildGraphFromRecords(
     const tgtId = rec.get("tgtId");
     const tgtLabel = rec.get("tgtLabel");
     const tgtType = toNodeType(rec.get("tgtType"));
+    const srcDate = safeGet(rec, "srcDate");
+    const tgtDate = safeGet(rec, "tgtDate");
+    const srcDocType = safeGet(rec, "srcDocType");
+    const tgtDocType = safeGet(rec, "tgtDocType");
 
     if (srcId && !nodesMap.has(srcId)) {
-      nodesMap.set(srcId, { id: srcId, label: srcLabel ?? srcId, type: srcType });
+      nodesMap.set(srcId, {
+        id: srcId,
+        label: srcLabel ?? srcId,
+        type: srcType,
+        date: srcDate ?? undefined,
+        docType: srcDocType ?? undefined,
+      });
     }
     if (tgtId && !nodesMap.has(tgtId)) {
-      nodesMap.set(tgtId, { id: tgtId, label: tgtLabel ?? tgtId, type: tgtType });
+      nodesMap.set(tgtId, {
+        id: tgtId,
+        label: tgtLabel ?? tgtId,
+        type: tgtType,
+        date: tgtDate ?? undefined,
+        docType: tgtDocType ?? undefined,
+      });
     }
     if (srcId && tgtId && relType) {
       const key = `${srcId}|${relType}|${tgtId}`;
@@ -147,10 +173,14 @@ export async function retrieveNeighborhood(term: string): Promise<SubgraphData> 
          coalesce(startNode(r).id, startNode(r).name) AS srcId,
          coalesce(startNode(r).name, startNode(r).fileName, startNode(r).label) AS srcLabel,
          labels(startNode(r))[0] AS srcType,
+         startNode(r).eventDate AS srcDate,
+         startNode(r).docType AS srcDocType,
          type(r) AS relType,
          coalesce(endNode(r).id, endNode(r).name) AS tgtId,
          coalesce(endNode(r).name, endNode(r).fileName, endNode(r).label) AS tgtLabel,
-         labels(endNode(r))[0] AS tgtType
+         labels(endNode(r))[0] AS tgtType,
+         endNode(r).eventDate AS tgtDate,
+         endNode(r).docType AS tgtDocType
        LIMIT 80`,
       { term }
     );

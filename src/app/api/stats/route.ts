@@ -1,12 +1,22 @@
 import { NextResponse } from "next/server";
 import { qdrant } from "@/lib/clients/qdrant";
 import { driver } from "@/lib/clients/neo4j";
+import { redis } from "@/lib/clients/redis";
 import { COLLECTION } from "@/lib/ingest/qdrant-store";
 import { countIncidents } from "@/lib/graph/retrieve";
 import {
   getExpertsCount,
   getAggregateRiskScore,
 } from "@/lib/agents/knowledge-risk";
+
+// Real count of playbooks actually generated (cached), not a fabricated number.
+async function countPlaybooks(): Promise<number> {
+  try {
+    return (await redis.keys("iki:playbook:*")).length;
+  } catch {
+    return 0;
+  }
+}
 
 export const runtime = "nodejs";
 
@@ -83,10 +93,11 @@ async function getGraphStats(): Promise<GraphStats> {
 }
 
 export async function GET() {
-  const [corpus, graph, incidentsIndexed] = await Promise.all([
+  const [corpus, graph, incidentsIndexed, playbooksGenerated] = await Promise.all([
     getCorpusStats(),
     getGraphStats(),
     countIncidents(),
+    countPlaybooks(),
   ]);
 
   return NextResponse.json({
@@ -95,5 +106,6 @@ export async function GET() {
     expertsTracked: getExpertsCount(),
     incidentsIndexed,
     knowledgeRiskScore: getAggregateRiskScore(),
+    playbooksGenerated,
   });
 }

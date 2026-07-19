@@ -6,7 +6,7 @@ type IconComponent = React.ElementType<{ className?: string }>;
 
 type PageShellProps = {
   title: React.ReactNode;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   hero?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
@@ -45,7 +45,7 @@ export function PageShell({
             {title}
           </h1>
           {subtitle && (
-            <p className="text-muted-foreground text-sm mt-1 break-words">{subtitle}</p>
+            <div className="text-muted-foreground text-sm mt-1 break-words">{subtitle}</div>
           )}
         </div>
         {actions && <div className="flex flex-wrap gap-2 shrink-0">{actions}</div>}

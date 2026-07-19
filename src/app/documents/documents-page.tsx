@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { FileText, Layers, Network } from "lucide-react";
+import { BookOpen, History, Users, FileCheck2, BrainCircuit, CheckCircle2 } from "lucide-react";
 import {
   PageShell,
   HeroBand,
   HeroMetricCard,
   ContentCard,
 } from "@/components/page-shell";
-import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,17 +28,26 @@ interface FileRow {
   stage?: number;
 }
 
+// User-facing narrative for what happens on upload — no vectors, chunks, or
+// embeddings in view. The real pipeline underneath is unchanged.
 const PIPELINE_STAGES = [
-  "Upload received",
-  "Text extraction",
-  "OCR (if needed)",
-  "Chunking",
-  "Entity extraction",
-  "RCA extraction",
-  "Embedding",
-  "Vector indexing",
-  "Graph build",
+  "Uploading Knowledge",
+  "Extracting Equipment Information",
+  "Identifying Engineers",
+  "Connecting Historical Incidents",
+  "Updating Knowledge Graph",
+  "Generating AI Playbooks",
+  "Organizational Memory Expanded",
 ];
+const STAGE_INTERVAL_MS = 800; // 7 stages × 800ms ≈ 5.6s, within the 5–7s target
+
+const STATUS_LABEL: Record<RowStatus, string> = {
+  queued: "Queued",
+  processing: "Processing…",
+  success: "Available to AI",
+  partial: "Partially Added",
+  error: "Failed",
+};
 
 const STATUS_STYLES: Record<RowStatus, string> = {
   queued: "bg-muted text-muted-foreground border-transparent",
@@ -49,22 +57,48 @@ const STATUS_STYLES: Record<RowStatus, string> = {
   error: "bg-destructive text-destructive-foreground border-transparent",
 };
 
+const KNOWLEDGE_TYPES = [
+  "SOPs",
+  "Incident Reports",
+  "Work Orders",
+  "Maintenance Logs",
+  "Vendor Manuals",
+  "Expert Interviews",
+  "Audit Reports",
+];
+
 const ACCEPT = ".pdf,.png,.jpg,.jpeg,.tiff,.xlsx,.csv,.eml,.txt";
 
 function StatusBadge({ status }: { status: RowStatus }) {
-  return <Badge className={STATUS_STYLES[status]}>{status}</Badge>;
+  return <Badge className={STATUS_STYLES[status]}>{STATUS_LABEL[status]}</Badge>;
 }
 
-function NumCell({ value }: { value: number | undefined }) {
-  if (value === undefined) return <span className="text-muted-foreground">—</span>;
-  return <span className="tabular-nums">{value}</span>;
-}
+type Stats = {
+  documents: number;
+  incidentsIndexed: number;
+  expertsTracked: number;
+  playbooksGenerated: number;
+  knowledgeRiskScore: number;
+};
 
 export default function DocumentsPage() {
   const [rows, setRows] = useState<FileRow[]>([]);
   const [dragging, setDragging] = useState(false);
   const [selected, setSelected] = useState<FileRow | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [lastBatch, setLastBatch] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const refreshStats = useCallback(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then(setStats)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    refreshStats();
+  }, [refreshStats]);
 
   const updateRow = useCallback(
     (name: string, patch: Partial<FileRow>) =>
@@ -77,6 +111,7 @@ export default function DocumentsPage() {
       const incoming = files.filter((f) => !rows.find((r) => r.name === f.name));
       if (incoming.length === 0) return;
 
+      setLastBatch(incoming.map((f) => f.name));
       setRows((prev) => [
         ...prev,
         ...incoming.map((f): FileRow => ({ name: f.name, status: "queued", stage: 0 })),
@@ -92,7 +127,7 @@ export default function DocumentsPage() {
                 : r
             )
           );
-        }, 600);
+        }, STAGE_INTERVAL_MS);
         try {
           const body = new FormData();
           body.append("files", f);
@@ -106,16 +141,17 @@ export default function DocumentsPage() {
             stage: PIPELINE_STAGES.length - 1,
           });
           if (result?.status === "error") {
-            toast.error(`${f.name} failed to ingest`);
+            toast.error(`${f.name} couldn't be added`);
           }
         } catch {
           clearInterval(stageTimer);
           updateRow(f.name, { status: "error" });
-          toast.error("Ingestion request failed");
+          toast.error("Couldn't add knowledge — try again");
         }
       }
+      refreshStats();
     },
-    [rows, updateRow]
+    [rows, updateRow, refreshStats]
   );
 
   const onDrop = useCallback(
@@ -128,50 +164,56 @@ export default function DocumentsPage() {
   );
 
   const processing = rows.some((r) => r.status === "processing");
-  const totalChunks = rows.reduce((s, r) => s + (r.result?.chunks ?? 0), 0);
-  const totalEntities = rows.reduce(
+  const coveragePercent = stats ? 100 - stats.knowledgeRiskScore : null;
+
+  const batchRows = rows.filter((r) => lastBatch.includes(r.name));
+  const batchDone =
+    lastBatch.length > 0 && batchRows.every((r) => r.status !== "processing" && r.status !== "queued");
+  const batchSuccessRows = batchRows.filter((r) => r.status === "success" || r.status === "partial");
+  const batchNewEquipment = batchSuccessRows.reduce(
+    (s, r) => s + (r.result?.entitiesFound.equipmentTags ?? 0),
+    0
+  );
+  const batchNewRelationships = batchSuccessRows.reduce(
     (s, r) =>
-      s +
-      (r.result?.entitiesFound.equipmentTags ?? 0) +
-      (r.result?.entitiesFound.regulatoryRefs ?? 0) +
-      (r.result?.entitiesFound.personnel ?? 0),
+      s + (r.result?.entitiesFound.regulatoryRefs ?? 0) + (r.result?.entitiesFound.personnel ?? 0),
     0
   );
 
   return (
     <PageShell
-      title="Document Intelligence"
-      subtitle="Upload industrial documents — parse, extract entities, index vectors, and build the knowledge graph."
+      title="Knowledge Repository"
+      subtitle="Build your organization's memory by adding SOPs, incident reports, maintenance logs, work orders, expert interviews, audit reports and vendor manuals."
       maxWidth="lg"
       hero={
-        <HeroBand>
-          <HeroMetricCard
-            label="Documents Indexed"
-            value={rows.length || 31}
-            icon={FileText}
-            trend={12}
-            sparklineData={sparklineFromSeed(rows.length || 31)}
-          />
-          <HeroMetricCard
-            label="Chunks Created"
-            value={totalChunks || 842}
-            icon={Layers}
-            trend={8}
-            sparklineData={sparklineFromSeed(totalChunks || 842)}
-          />
-          <HeroMetricCard
-            label="Entities Extracted"
-            value={totalEntities || 156}
-            icon={Network}
-            trend={15}
-            sparklineData={sparklineFromSeed(totalEntities || 156)}
-            sparklineColor="#10b981"
-          />
+        <HeroBand cols={4}>
+          <HeroMetricCard label="Knowledge Sources" value={stats?.documents ?? "—"} icon={BookOpen} />
+          <HeroMetricCard label="Incident Reports" value={stats?.incidentsIndexed ?? "—"} icon={History} />
+          <HeroMetricCard label="Expert Knowledge" value={stats?.expertsTracked ?? "—"} icon={Users} />
+          <HeroMetricCard label="Operational Playbooks" value={stats?.playbooksGenerated ?? "—"} icon={FileCheck2} />
         </HeroBand>
       }
     >
+      <ContentCard className="border-primary/30 bg-primary/5">
+        <div className="flex items-center gap-4">
+          <BrainCircuit className="h-8 w-8 text-primary shrink-0" />
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              Knowledge Coverage
+            </p>
+            <p className="font-heading text-3xl font-bold">
+              {coveragePercent !== null ? `${coveragePercent}%` : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Share of organizational knowledge captured from SOPs, incident reports,
+              maintenance history, work orders, vendor manuals and expert experience.
+            </p>
+          </div>
+        </div>
+      </ContentCard>
+
       {processing && (
-        <ContentCard title="Processing Pipeline">
+        <ContentCard title="Adding Knowledge…">
           <div className="flex flex-wrap gap-2">
             {PIPELINE_STAGES.map((stage, i) => {
               const activeRow = rows.find((r) => r.status === "processing");
@@ -181,15 +223,40 @@ export default function DocumentsPage() {
                   key={stage}
                   variant="outline"
                   className={
-                    i <= current
-                      ? "border-primary/50 text-primary"
-                      : "text-muted-foreground/40"
+                    i <= current ? "border-primary/50 text-primary" : "text-muted-foreground/40"
                   }
                 >
                   {i + 1}. {stage}
                 </Badge>
               );
             })}
+          </div>
+        </ContentCard>
+      )}
+
+      {batchDone && batchSuccessRows.length > 0 && (
+        <ContentCard title="Knowledge Successfully Added" className="border-emerald-500/40 bg-emerald-500/5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <p className="text-2xl font-bold font-heading">{batchSuccessRows.length}</p>
+              <p className="text-xs text-muted-foreground">Knowledge Added</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-heading">{batchNewEquipment}</p>
+              <p className="text-xs text-muted-foreground">New Equipment Identified</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold font-heading">{batchNewRelationships}</p>
+              <p className="text-xs text-muted-foreground">New Relationships Found</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Knowledge Graph Updated
+              </p>
+              <p className="text-xs flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> AI Playbooks Improved
+              </p>
+            </div>
           </div>
         </ContentCard>
       )}
@@ -204,16 +271,31 @@ export default function DocumentsPage() {
         }`}
       >
         <input ref={inputRef} type="file" multiple accept={ACCEPT} onChange={(e) => processFiles(Array.from(e.target.files ?? []))} className="sr-only" />
-        <p className="text-lg font-semibold font-heading">{dragging ? "Release to upload" : "Drop files here"}</p>
-        <p className="text-sm text-muted-foreground mt-1">PDF · XLSX · CSV · PNG · JPEG · EML · TXT</p>
+        <p className="text-lg font-semibold font-heading">
+          {dragging ? "Release to add" : "Add Organizational Knowledge"}
+        </p>
+        <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+          Upload SOPs, Incident Reports, Maintenance Logs, Work Orders, Expert
+          Interviews, Vendor Manuals and Audit Reports.
+        </p>
+        <div className="flex flex-wrap justify-center gap-1.5 mt-4">
+          {KNOWLEDGE_TYPES.map((t) => (
+            <Badge key={t} variant="outline" className="text-[10px] text-muted-foreground">
+              ✓ {t}
+            </Badge>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground/70 mt-3">
+          PDF · XLSX · CSV · PNG · JPEG · EML · TXT
+        </p>
       </div>
 
       {rows.length > 0 && (
         <ContentCard
-          title={`Ingestion Queue (${rows.length})`}
+          title={`Knowledge Added This Session (${rows.length})`}
           action={
             !processing ? (
-              <Button variant="ghost" size="sm" onClick={() => setRows([])}>Clear</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setRows([]); setLastBatch([]); }}>Clear</Button>
             ) : undefined
           }
         >
@@ -223,21 +305,34 @@ export default function DocumentsPage() {
                 key={row.name}
                 type="button"
                 onClick={() => row.result && setSelected(row)}
-                className="w-full flex flex-col sm:grid sm:grid-cols-[1fr_100px_60px_60px] gap-2 sm:gap-3 px-4 sm:px-5 py-3 items-start sm:items-center text-sm text-left hover:bg-muted/40"
+                className="w-full flex flex-col sm:grid sm:grid-cols-[1fr_140px_60px] gap-2 sm:gap-3 px-4 sm:px-5 py-3 items-start sm:items-center text-sm text-left hover:bg-muted/40"
               >
                 <span className="truncate font-medium w-full">{row.name}</span>
                 <div className="flex flex-wrap items-center gap-2 sm:contents">
                   <StatusBadge status={row.status} />
-                  <span className="tabular-nums text-muted-foreground sm:text-foreground">
-                    <span className="sm:hidden text-xs mr-1">Chunks:</span>
-                    <NumCell value={row.result?.chunks} />
-                  </span>
                   <span className="text-xs text-muted-foreground">
-                    {row.result ? "Details →" : row.status === "processing" ? `${(row.stage ?? 0) + 1}/9` : "—"}
+                    {row.result ? "Details →" : row.status === "processing" ? `${(row.stage ?? 0) + 1}/${PIPELINE_STAGES.length}` : "—"}
                   </span>
                 </div>
               </button>
             ))}
+          </div>
+        </ContentCard>
+      )}
+
+      {rows.some((r) => r.status === "success" || r.status === "partial") && (
+        <ContentCard title="Recent Knowledge Added">
+          <div className="space-y-2">
+            {rows
+              .filter((r) => r.status === "success" || r.status === "partial")
+              .slice(-5)
+              .reverse()
+              .map((r) => (
+                <p key={r.name} className="text-xs text-muted-foreground">
+                  <span className="text-foreground font-medium">{r.name}</span>
+                  {" → Knowledge Graph Updated → Available to Future Engineers"}
+                </p>
+              ))}
           </div>
         </ContentCard>
       )}
@@ -250,13 +345,12 @@ export default function DocumentsPage() {
           {selected?.result && (
             <div className="space-y-3 text-sm">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">Document</Badge>
-                {selected.result.ocrApplied && <Badge variant="outline">OCR applied</Badge>}
+                <Badge variant="outline">Knowledge Source</Badge>
+                {selected.result.ocrApplied && <Badge variant="outline">Scanned document</Badge>}
               </div>
-              <p><strong>Chunks:</strong> {selected.result.chunks}</p>
-              <p><strong>Equipment tags:</strong> {selected.result.entitiesFound.equipmentTags ?? 0}</p>
-              <p><strong>Regulatory refs:</strong> {selected.result.entitiesFound.regulatoryRefs ?? 0}</p>
-              <p><strong>Personnel:</strong> {selected.result.entitiesFound.personnel ?? 0}</p>
+              <p><strong>Equipment identified:</strong> {selected.result.entitiesFound.equipmentTags ?? 0}</p>
+              <p><strong>Regulations linked:</strong> {selected.result.entitiesFound.regulatoryRefs ?? 0}</p>
+              <p><strong>People referenced:</strong> {selected.result.entitiesFound.personnel ?? 0}</p>
               {selected.result.error && (
                 <p className="text-destructive text-xs">{selected.result.error}</p>
               )}

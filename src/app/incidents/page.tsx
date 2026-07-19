@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Clock, Repeat } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   PageShell,
   HeroBand,
@@ -47,8 +48,8 @@ export default function IncidentsPage() {
 
   return (
     <PageShell
-      title="Incident & Failure Intelligence"
-      subtitle="Pattern detection and similar incident analysis"
+      title="Failure Intelligence"
+      subtitle="Learn from previous failures, understand how they were solved and reuse operational experience in new investigations."
       hero={
         <HeroBand>
           <HeroMetricCard
@@ -79,7 +80,7 @@ export default function IncidentsPage() {
       }
     >
       <div className="grid lg:grid-cols-2 gap-6">
-        <ContentCard title="Recurring Patterns">
+        <ContentCard title="Historical Knowledge">
           <div className="space-y-3">
             {(data?.patterns ?? []).map((p) => (
               <div
@@ -101,13 +102,24 @@ export default function IncidentsPage() {
                       {a}
                     </Link>
                   ))}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    render={
+                      <Link
+                        href={`/rca?query=${encodeURIComponent(p.title)}&asset=${p.assets[0] ?? ""}`}
+                      />
+                    }
+                  >
+                    Investigate Pattern
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         </ContentCard>
 
-        <ContentCard title="Similar Incident Finder">
+        <ContentCard title="Incident Summary">
           {selectedIncident ? (
             <div className="text-sm space-y-2">
               <p className="font-medium">{selectedIncident.summary}</p>
@@ -121,7 +133,7 @@ export default function IncidentsPage() {
                 href={`/rca?asset=${selectedIncident.asset}`}
                 className="text-primary underline"
               >
-                Run RCA on {selectedIncident.asset}
+                Continue investigation on {selectedIncident.asset}
               </Link>
               <button
                 type="button"
@@ -133,13 +145,13 @@ export default function IncidentsPage() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Select an incident below to analyze
+              Select a historical failure to see root cause, resolution, evidence and lessons learned.
             </p>
           )}
         </ContentCard>
       </div>
 
-      <ContentCard title="Incident History">
+      <ContentCard title="Historical Failure Cases">
         <div className="space-y-2">
           {(data?.incidents ?? []).map((inc) => (
             <button
@@ -163,6 +175,18 @@ export default function IncidentsPage() {
                 )}
               </div>
               <p>{inc.summary}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="text-xs text-muted-foreground">
+                  Root Cause → Resolution → Lessons Learned
+                </span>
+                <Link
+                  href={`/rca?asset=${inc.asset}&query=${encodeURIComponent(inc.summary)}`}
+                  className="text-xs text-primary"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Continue Investigation
+                </Link>
+              </div>
             </button>
           ))}
         </div>

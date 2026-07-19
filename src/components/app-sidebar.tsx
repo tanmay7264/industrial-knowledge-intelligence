@@ -10,10 +10,8 @@ import {
   GitBranch,
   Search,
   AlertTriangle,
-  ShieldCheck,
   Bell,
   BookOpen,
-  Play,
   Brain,
   ChevronLeft,
   ChevronRight,
@@ -31,20 +29,20 @@ interface NavItem {
 
 const BRAIN_NAV: NavItem[] = [
   { href: "/command", label: "Command Center", icon: LayoutDashboard },
-  { href: "/copilot", label: "AI Copilot", icon: MessageSquare },
+  { href: "/copilot", label: "Ask Memory", icon: MessageSquare },
   { href: "/assets", label: "Asset 360", icon: Boxes },
-  { href: "/documents", label: "Documents", icon: FileText },
-  { href: "/graph", label: "Knowledge Graph", icon: GitBranch },
-  { href: "/rca", label: "RCA Workspace", icon: Search },
-  { href: "/incidents", label: "Incidents", icon: AlertTriangle },
-  { href: "/compliance", label: "Compliance", icon: ShieldCheck },
-  { href: "/alerts", label: "Alerts & Insights", icon: Bell },
+  { href: "/documents", label: "Document Intelligence", icon: FileText },
+  { href: "/graph", label: "AI Reasoning", icon: GitBranch },
+  { href: "/rca", label: "Investigate", icon: Search },
+  { href: "/incidents", label: "Failure Intelligence", icon: AlertTriangle },
+  { href: "/alerts", label: "Operational Intelligence", icon: Bell },
+  // Compliance hidden per product brief — restore to BRAIN_NAV if the
+  // hackathon problem statement calls for it explicitly.
 ];
 
 const IOM_NAV: NavItem[] = [
-  { href: "/knowledge-risk", label: "Knowledge Risk", icon: AlertTriangle },
-  { href: "/playbook", label: "Playbook", icon: BookOpen },
-  { href: "/demo", label: "Demo", icon: Play },
+  { href: "/knowledge-risk", label: "Memory Continuity", icon: AlertTriangle },
+  { href: "/playbook", label: "Operational Playbooks", icon: BookOpen },
 ];
 
 function NavLink({

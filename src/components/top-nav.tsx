@@ -9,9 +9,7 @@ import {
   BookOpen,
   AlertTriangle,
   ShieldCheck,
-  Upload,
   GitBranch,
-  Play,
   Brain,
   MoreHorizontal,
 } from "lucide-react";
@@ -32,7 +30,6 @@ const PRIMARY_NAV: NavItem[] = [
 const SECONDARY_NAV: NavItem[] = [
   { href: "/compliance", label: "Compliance", icon: ShieldCheck },
   { href: "/graph", label: "Graph", icon: GitBranch },
-  { href: "/ingest", label: "Ingest", icon: Upload },
 ];
 
 type HealthData = Record<string, "ok" | "down">;
@@ -138,13 +135,6 @@ export function TopNav() {
             <span>{health === null ? "Checking" : allOnline ? "Online" : "Degraded"}</span>
           </div>
 
-          <Link
-            href="/demo"
-            className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap glow-primary"
-          >
-            <Play className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Demo</span>
-          </Link>
         </div>
       </div>
     </header>

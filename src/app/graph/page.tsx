@@ -5,11 +5,29 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HeroBand, HeroMetricCard } from "@/components/page-shell";
-import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
-import { GitBranch, Network, Share2 } from "lucide-react";
-import type { SubgraphData, NodeType } from "@/lib/graph/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ContentCard } from "@/components/page-shell";
+import {
+  Boxes,
+  AlertTriangle,
+  User,
+  FileText,
+  ShieldCheck,
+  Target,
+  CheckCircle2,
+  Sparkles,
+  Loader2,
+  Play,
+} from "lucide-react";
+import type { SubgraphData, NodeType, GraphNode } from "@/lib/graph/types";
+import type { OperationalPlaybook } from "@/lib/agents/playbook-types";
 
 const ForceGraphInner = dynamic(
   () => import("@/components/force-graph-inner"),
@@ -30,22 +48,68 @@ const NODE_COLORS: Record<NodeType, string> = {
   LessonLearned: "#8b5cf6",
 };
 
+// Plain-language names for what are, underneath, Neo4j node labels.
+const NODE_DISPLAY_NAME: Record<NodeType, string> = {
+  Document: "Document",
+  Equipment: "Machine",
+  RegulatoryRef: "Regulation",
+  Person: "Engineer",
+  Parameter: "Parameter",
+  Incident: "Incident",
+  Symptom: "Symptom",
+  RootCause: "Root Cause",
+  Resolution: "Resolution",
+  Outcome: "Outcome",
+  LessonLearned: "Expert Insight",
+};
+
+const NODE_ICON: Record<NodeType, typeof Boxes> = {
+  Document: FileText,
+  Equipment: Boxes,
+  RegulatoryRef: ShieldCheck,
+  Person: User,
+  Parameter: Sparkles,
+  Incident: AlertTriangle,
+  Symptom: AlertTriangle,
+  RootCause: Target,
+  Resolution: CheckCircle2,
+  Outcome: CheckCircle2,
+  LessonLearned: Sparkles,
+};
+
+function displayName(node: GraphNode): string {
+  if (node.type === "Document" && node.docType) return node.docType;
+  return NODE_DISPLAY_NAME[node.type];
+}
+
 const NODE_TYPES: NodeType[] = [
   "Equipment",
   "Incident",
-  "RegulatoryRef",
-  "Document",
   "Person",
-  "Parameter",
+  "Document",
+  "RegulatoryRef",
   "LessonLearned",
 ];
 
-const EXAMPLE_SEARCHES = [
-  "p-101",
-  "iso 9001",
-  "hydraulic pump",
-  "pressure",
-  "inspector",
+// The order "Follow AI Reasoning" walks the currently loaded subgraph in.
+const REASONING_ORDER: NodeType[] = [
+  "Equipment",
+  "Incident",
+  "RootCause",
+  "Resolution",
+  "Person",
+  "Document",
+  "LessonLearned",
+];
+
+const EXPLORE_EXAMPLES = [
+  "Pump P101",
+  "Bearing Failure",
+  "Lubrication Issue",
+  "Compressor Overheating",
+  "Rajesh Sharma",
+  "Preventive Maintenance",
+  "Recurring Failure",
 ];
 
 function GraphPageInner() {
@@ -56,6 +120,11 @@ function GraphPageInner() {
   const [subgraph, setSubgraph] = useState<SubgraphData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [playbook, setPlaybook] = useState<OperationalPlaybook | null>(null);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
+  const [reasoningStep, setReasoningStep] = useState<string | null>(null);
+  const [reasoningPlaying, setReasoningPlaying] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 800, h: 600 });
 
@@ -77,18 +146,32 @@ function GraphPageInner() {
     setLoading(true);
     setError(null);
     setSubgraph(null);
+    setPlaybook(null);
+    setHighlightedNodeId(null);
+
+    const graphP = fetch(`/api/graph?term=${encodeURIComponent(searchTerm)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json() as Promise<SubgraphData>;
+      });
+    const playbookP = fetch("/api/playbook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: searchTerm }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => (d?.playbook as OperationalPlaybook) ?? null)
+      .catch(() => null);
+
     try {
-      const res = await fetch(
-        `/api/graph?term=${encodeURIComponent(searchTerm)}`
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data: SubgraphData = await res.json();
-      setSubgraph(data);
+      const [graphData, playbookData] = await Promise.all([graphP, playbookP]);
+      setSubgraph(graphData);
+      setPlaybook(playbookData);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Graph query failed";
+      const message = err instanceof Error ? err.message : "Search failed";
       setError(message);
-      toast.error("Graph query failed", {
-        description: "Make sure Neo4j is running and documents are ingested.",
+      toast.error("Couldn't explain this recommendation", {
+        description: "Make sure Neo4j is running and knowledge has been added.",
       });
     } finally {
       setLoading(false);
@@ -127,52 +210,108 @@ function GraphPageInner() {
         }
       : subgraph;
 
-  const nodeCount = subgraph?.nodes.length ?? 0;
-  const edgeCount = subgraph?.edges.length ?? 0;
-  const typeCount = presentTypes.size;
+  const documentsByType = (subgraph?.nodes ?? [])
+    .filter((n) => n.type === "Document")
+    .reduce<Record<string, number>>((acc, n) => {
+      const key = n.docType ?? "Document";
+      acc[key] = (acc[key] ?? 0) + 1;
+      return acc;
+    }, {});
+
+  const followReasoning = useCallback(() => {
+    if (!subgraph || reasoningPlaying) return;
+    const path = REASONING_ORDER
+      .map((t) => subgraph.nodes.find((n) => n.type === t))
+      .filter((n): n is GraphNode => !!n);
+    if (path.length === 0) return;
+
+    setReasoningPlaying(true);
+    let i = 0;
+    const step = () => {
+      const node = path[i];
+      setHighlightedNodeId(node.id);
+      setReasoningStep(`${displayName(node)} — ${node.label}`);
+      i++;
+      if (i < path.length) {
+        setTimeout(step, 1400);
+      } else {
+        setTimeout(() => {
+          setReasoningPlaying(false);
+        }, 1400);
+      }
+    };
+    step();
+  }, [subgraph, reasoningPlaying]);
+
+  const connectedNodes = (node: GraphNode | null) => {
+    if (!node || !subgraph) return [];
+    const neighborIds = subgraph.edges
+      .filter((e) => e.source === node.id || e.target === node.id)
+      .map((e) => (e.source === node.id ? e.target : e.source));
+    return subgraph.nodes.filter((n) => neighborIds.includes(n.id));
+  };
 
   return (
     <div className="flex flex-col lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden">
-      <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
-        <HeroBand cols={3} className="mb-0">
-          <HeroMetricCard
-            label="Nodes Found"
-            value={nodeCount || "—"}
-            icon={Network}
-            trend={nodeCount ? 10 : undefined}
-            sparklineData={sparklineFromSeed(nodeCount || 24)}
-          />
-          <HeroMetricCard
-            label="Edges"
-            value={edgeCount || "—"}
-            icon={Share2}
-            sparklineData={sparklineFromSeed(edgeCount || 48)}
-            sparklineColor="#10b981"
-          />
-          <HeroMetricCard
-            label="Entity Types"
-            value={typeCount || "—"}
-            icon={GitBranch}
-            trendLabel={query ? `Query: ${query}` : "Search to explore"}
-            sparklineData={sparklineFromSeed(typeCount || 6)}
-          />
-        </HeroBand>
+      <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0 space-y-2">
+        <div>
+          <h1 className="font-heading text-xl sm:text-2xl font-bold">AI Reasoning Graph</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visualize how Industrial Brain connected historical incidents, expert
+            knowledge, maintenance history, SOPs and operational documents to
+            generate this recommendation.
+          </p>
+        </div>
+
+        <ContentCard title="AI Recommendation Summary">
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ) : playbook ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 items-end">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Problem</p>
+                <p className="text-sm font-semibold">{playbook.issue}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Most Likely Cause</p>
+                <p className="text-sm font-semibold">{playbook.mostCommonRootCause}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">Confidence</p>
+                <Badge className="bg-emerald-500 text-white">{playbook.confidenceScore}%</Badge>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">Knowledge Sources Used</p>
+                  <p className="text-sm font-semibold">{playbook.supportingEvidence.length}</p>
+                </div>
+                <a href="#explainability">
+                  <Button size="sm" variant="outline">View AI Reasoning</Button>
+                </a>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Search below to see why Industrial Brain would recommend a resolution.
+            </p>
+          )}
+        </ContentCard>
       </div>
 
       {/* Search toolbar */}
       <div className="border-b border-border px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3 glass shrink-0">
-        <h2 className="font-heading font-semibold text-sm shrink-0">
-          Graph Explorer
-        </h2>
         <form onSubmit={handleSubmit} className="flex gap-2 flex-1 w-full sm:max-w-lg min-w-0">
           <input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
-            placeholder="Search tag, regulation, keyword…"
+            placeholder="Explain recommendation for…"
             className="flex-1 min-w-0 h-8 rounded-lg border border-input bg-muted/40 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
           />
           <Button type="submit" size="sm" disabled={!term.trim() || loading} className="shrink-0">
-            {loading ? "…" : "Explore"}
+            {loading ? "…" : "Explain"}
           </Button>
         </form>
         <div className="flex flex-wrap gap-1 w-full sm:w-auto overflow-x-auto no-scrollbar pb-0.5 sm:pb-0">
@@ -183,18 +322,41 @@ function GraphPageInner() {
           >
             All
           </button>
-          {NODE_TYPES.filter((t) => presentTypes.has(t)).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTypeFilter(t)}
-              className={`px-2 py-0.5 rounded text-[10px] border shrink-0 ${typeFilter === t ? "bg-primary/15 border-primary/40" : "border-border"}`}
-            >
-              {t}
-            </button>
-          ))}
+          {NODE_TYPES.filter((t) => presentTypes.has(t)).map((t) => {
+            const Icon = NODE_ICON[t];
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTypeFilter(t)}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border shrink-0 ${typeFilter === t ? "bg-primary/15 border-primary/40" : "border-border"}`}
+              >
+                <Icon className="h-3 w-3" />
+                {NODE_DISPLAY_NAME[t]}
+              </button>
+            );
+          })}
         </div>
+        {subgraph && subgraph.nodes.length > 0 && (
+          <Button
+            type="button"
+            size="sm"
+            variant={reasoningPlaying ? "secondary" : "default"}
+            disabled={reasoningPlaying}
+            onClick={followReasoning}
+            className="shrink-0 gap-1.5"
+          >
+            {reasoningPlaying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+            Follow AI Reasoning
+          </Button>
+        )}
       </div>
+
+      {reasoningStep && (
+        <div className="px-4 sm:px-6 py-1.5 text-xs text-primary bg-primary/5 border-b border-primary/20 shrink-0">
+          Now viewing: {reasoningStep}
+        </div>
+      )}
 
       {/* Main */}
       <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
@@ -211,7 +373,7 @@ function GraphPageInner() {
                 <Skeleton className="h-3 w-3/5 bg-slate-800" />
               </div>
               <p className="text-slate-500 text-sm px-4 text-center">
-                Querying knowledge graph…
+                Connecting organizational memory…
               </p>
             </div>
           )}
@@ -221,7 +383,7 @@ function GraphPageInner() {
               <div className="text-center space-y-2">
                 <p className="text-destructive text-sm">{error}</p>
                 <p className="text-muted-foreground text-xs">
-                  Make sure Neo4j is running and documents are ingested.
+                  Make sure Neo4j is running and knowledge has been added.
                 </p>
               </div>
             </div>
@@ -244,8 +406,8 @@ function GraphPageInner() {
                 </svg>
               </div>
               <p className="text-slate-500 text-sm max-w-xs">
-                Search an equipment tag or regulation to explore its knowledge graph
-                neighborhood
+                Search a machine, symptom, or engineer to see why Industrial Brain
+                would recommend a resolution.
               </p>
             </div>
           )}
@@ -253,8 +415,8 @@ function GraphPageInner() {
           {subgraph && subgraph.nodes.length === 0 && !loading && (
             <div className="absolute inset-0 flex items-center justify-center p-4">
               <p className="text-slate-500 text-sm text-center">
-                No nodes found for &quot;{query}&quot;. Try ingesting documents first or use a
-                different search term.
+                No connected knowledge found for &quot;{query}&quot;. Try adding
+                documents first or use a different search term.
               </p>
             </div>
           )}
@@ -264,80 +426,64 @@ function GraphPageInner() {
               data={filteredSubgraph}
               width={dims.w}
               height={dims.h}
+              highlightedNodeId={highlightedNodeId}
+              onNodeClick={(n) =>
+                setSelectedNode({
+                  id: n.id,
+                  label: n.name,
+                  type: n.nodeType,
+                  date: n.date,
+                  docType: n.docType,
+                })
+              }
             />
           )}
         </div>
 
         {/* Sidebar — below graph on mobile, left on desktop */}
-        <aside className="order-2 lg:order-1 w-full lg:w-56 lg:max-w-[14rem] border-t lg:border-t-0 lg:border-r border-border bg-card/60 p-4 shrink-0 space-y-5 overflow-y-auto max-h-[40vh] lg:max-h-none">
-          {/* Legend */}
-          <div>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              Node types
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-1 gap-1.5">
-              {NODE_TYPES.map((t) => (
-                <div
-                  key={t}
-                  className={`flex items-center gap-2 text-xs ${
-                    presentTypes.has(t) ? "text-foreground" : "text-muted-foreground/50"
-                  }`}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: NODE_COLORS[t] }}
-                  />
-                  {t}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stats */}
-          {subgraph && (
+        <aside
+          id="explainability"
+          className="order-2 lg:order-1 w-full lg:w-72 lg:max-w-[18rem] border-t lg:border-t-0 lg:border-r border-border bg-card/60 p-4 shrink-0 space-y-5 overflow-y-auto max-h-[50vh] lg:max-h-none"
+        >
+          {playbook ? (
             <div>
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                Results for &quot;{query}&quot;
+                Why AI Recommended This
               </p>
-              <div className="space-y-1 text-xs text-muted-foreground">
+              <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span>Nodes</span>
-                  <span className="text-foreground font-medium tabular-nums">
-                    {subgraph.nodes.length}
+                  <span className="text-muted-foreground">Matched Historical Incidents</span>
+                  <span className="font-medium tabular-nums">{playbook.similarIncidents.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Matched Machine History</span>
+                  <span className="font-medium tabular-nums">
+                    {subgraph?.nodes.filter((n) => n.type === "Equipment").length ?? 0}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Edges</span>
-                  <span className="text-foreground font-medium tabular-nums">
-                    {subgraph.edges.length}
-                  </span>
+                  <span className="text-muted-foreground">Matched Expert Experience</span>
+                  <span className="font-medium tabular-nums">{playbook.lessonsLearned.length}</span>
                 </div>
-                {NODE_TYPES.filter((t) => presentTypes.has(t)).map((t) => (
-                  <div key={t} className="flex justify-between">
-                    <span className="flex items-center gap-1 min-w-0">
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: NODE_COLORS[t] }}
-                      />
-                      <span className="truncate">{t}</span>
-                    </span>
-                    <span className="text-foreground font-medium tabular-nums">
-                      {subgraph.nodes.filter((n) => n.type === t).length}
-                    </span>
+                {Object.entries(documentsByType).map(([type, count]) => (
+                  <div key={type} className="flex justify-between">
+                    <span className="text-muted-foreground">Matched {type}</span>
+                    <span className="font-medium tabular-nums">{count}</span>
                   </div>
                 ))}
+                <div className="flex justify-between pt-2 border-t border-border/60">
+                  <span className="text-muted-foreground">Overall Confidence</span>
+                  <span className="font-semibold text-primary">{playbook.confidenceScore}%</span>
+                </div>
               </div>
             </div>
-          )}
-
-          {/* Example searches */}
-          {!subgraph && !loading && (
+          ) : (
             <div>
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                Try searching
+                Explore Organizational Memory
               </p>
               <div className="flex flex-wrap lg:flex-col gap-1">
-                {EXAMPLE_SEARCHES.map((s) => (
+                {EXPLORE_EXAMPLES.map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -355,6 +501,43 @@ function GraphPageInner() {
           )}
         </aside>
       </div>
+
+      {/* Node detail — side panel on desktop, bottom sheet on mobile via the same Dialog */}
+      <Dialog open={!!selectedNode} onOpenChange={(o) => !o && setSelectedNode(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedNode?.label}</DialogTitle>
+          </DialogHeader>
+          {selectedNode && (
+            <div className="space-y-3 text-sm">
+              <Badge variant="outline" style={{ borderColor: NODE_COLORS[selectedNode.type] }}>
+                {displayName(selectedNode)}
+              </Badge>
+              {selectedNode.date && (
+                <p>
+                  <strong>Date:</strong> {selectedNode.date}
+                </p>
+              )}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">
+                  Connected Knowledge
+                </p>
+                {connectedNodes(selectedNode).length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No connections in this view.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {connectedNodes(selectedNode).map((n) => (
+                      <Badge key={n.id} variant="outline" className="text-[10px]">
+                        {displayName(n)}: {n.label}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

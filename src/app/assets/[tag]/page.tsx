@@ -122,8 +122,11 @@ export default function AssetDetailPage() {
           <TabsList className="w-max min-w-full sm:w-fit">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
-            <TabsTrigger value="incidents">Incidents</TabsTrigger>
+            <TabsTrigger value="patterns">Failure Patterns</TabsTrigger>
+            <TabsTrigger value="experts">Expert Insights</TabsTrigger>
+            <TabsTrigger value="playbook">AI Playbook</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="contributors">Contributors</TabsTrigger>
             <TabsTrigger value="graph">Relationships</TabsTrigger>
           </TabsList>
         </div>
@@ -174,7 +177,12 @@ export default function AssetDetailPage() {
           ))}
         </TabsContent>
 
-        <TabsContent value="incidents" className="mt-4 space-y-3">
+        <TabsContent value="patterns" className="mt-4 space-y-3">
+          {data.similarIncidents.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No recurring failure patterns identified yet.
+            </p>
+          )}
           {data.similarIncidents.map((inc) => (
             <ContentCard key={inc.id}>
               <p className="font-medium text-sm">{inc.id}</p>
@@ -184,6 +192,14 @@ export default function AssetDetailPage() {
               )}
             </ContentCard>
           ))}
+        </TabsContent>
+
+        <TabsContent value="experts" className="mt-4 space-y-3">
+          {data.lessons.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No expert recommendations captured yet.
+            </p>
+          )}
           {data.lessons.map((l, i) => (
             <ContentCard key={i} className="border-l-2 border-l-primary">
               <p className="text-sm">{l.text}</p>
@@ -194,6 +210,47 @@ export default function AssetDetailPage() {
               )}
             </ContentCard>
           ))}
+        </TabsContent>
+
+        <TabsContent value="playbook" className="mt-4">
+          <ContentCard title="AI Operational Playbook">
+            <p className="text-sm text-muted-foreground mb-3">
+              Generate a structured playbook for {asset.tag} from historical
+              incidents, root causes, and expert-verified resolutions.
+            </p>
+            <Link
+              href={`/playbook?q=${encodeURIComponent(`${asset.tag} operational issue`)}`}
+              className="text-sm text-primary hover:underline"
+            >
+              Open AI Playbook for {asset.tag} →
+            </Link>
+          </ContentCard>
+        </TabsContent>
+
+        <TabsContent value="contributors" className="mt-4 space-y-3">
+          {(() => {
+            const names = [
+              ...new Set(
+                data.lessons.map((l) => l.expertName).filter((n): n is string => !!n)
+              ),
+            ];
+            if (names.length === 0) {
+              return (
+                <p className="text-sm text-muted-foreground">
+                  No knowledge contributors on record for this asset yet.
+                </p>
+              );
+            }
+            return names.map((name) => (
+              <ContentCard key={name}>
+                <p className="font-medium text-sm">{name}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {data.lessons.filter((l) => l.expertName === name).length}{" "}
+                  lesson(s) contributed for {asset.tag}
+                </p>
+              </ContentCard>
+            ));
+          })()}
         </TabsContent>
 
         <TabsContent value="documents" className="mt-4">

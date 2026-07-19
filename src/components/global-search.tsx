@@ -29,7 +29,7 @@ export function GlobalSearch() {
     e.preventDefault();
     if (!query.trim()) return;
     setOpen(false);
-    router.push(`/copilot?q=${encodeURIComponent(query.trim())}`);
+    router.push(`/rca?query=${encodeURIComponent(query.trim())}`);
   };
 
   const hasResults =
@@ -45,7 +45,7 @@ export function GlobalSearch() {
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => query.length >= 2 && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="Search…"
+          placeholder="Search machine, symptoms, incidents, SOPs or experts..."
           className="pl-9 h-9 text-sm bg-muted/40 border-border w-full min-w-0 sm:placeholder:text-muted-foreground"
         />
       </form>
@@ -75,7 +75,11 @@ export function GlobalSearch() {
               key={a.id}
               type="button"
               className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60"
-              onMouseDown={() => router.push(`/alerts`)}
+              onMouseDown={() =>
+                router.push(
+                  `/rca?asset=${encodeURIComponent(a.assetTag)}&query=${encodeURIComponent(a.title)}`
+                )
+              }
             >
               <span className="text-xs text-muted-foreground">{a.severity}</span>{" "}
               {a.title}
@@ -85,10 +89,10 @@ export function GlobalSearch() {
             type="button"
             className="w-full text-left px-3 py-2 text-sm text-primary hover:bg-muted/60 border-t"
             onMouseDown={() =>
-              router.push(`/copilot?q=${encodeURIComponent(query.trim())}`)
+              router.push(`/rca?query=${encodeURIComponent(query.trim())}`)
             }
           >
-            Ask Copilot: &ldquo;{query.trim()}&rdquo;
+            Investigate: &ldquo;{query.trim()}&rdquo;
           </button>
         </div>
       )}

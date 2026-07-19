@@ -2,18 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  FileText,
   Boxes,
-  MessageSquare,
+  AlertTriangle,
+  BrainCircuit,
+  UserRound,
+  Search,
 } from "lucide-react";
 import {
   PageShell,
@@ -22,17 +18,23 @@ import {
   ContentCard,
 } from "@/components/page-shell";
 import { HEALTH_COLORS, SEVERITY_STYLES } from "@/lib/ui/status-styles";
-import { sparklineFromSeed } from "@/lib/ui/sparkline-data";
+
+type ExpertProfile = {
+  name: string;
+  retiringInMonths: number;
+  knowledgeRiskScore: number;
+  assetsManaged: string[];
+};
 
 type CommandData = {
   plant: { name: string; location: string };
+  plantStatus: "green" | "amber" | "red";
+  plantStatusLabel: string;
   kpis: {
-    documentsIndexed: number;
-    connectedAssets: number;
-    activeAlerts: number;
     criticalAssets: number;
-    knowledgeQueriesToday: number;
-    avgSearchTimeSaved: number;
+    openIncidents: number;
+    knowledgeCapturedPercent: number | null;
+    expertsNearRetirement: number;
   };
   healthSummary: Record<string, number>;
   priorityAlerts: {
@@ -49,6 +51,13 @@ type CommandData = {
     message: string;
     assetTag: string;
   }[];
+  topKnowledgeRisk: ExpertProfile | null;
+};
+
+const PLANT_STATUS_DOT: Record<CommandData["plantStatus"], string> = {
+  green: "bg-emerald-500",
+  amber: "bg-amber-500",
+  red: "bg-red-500",
 };
 
 export default function CommandCenterPage() {
@@ -73,86 +82,69 @@ export default function CommandCenterPage() {
 
   const kpis = data?.kpis;
 
+  const todaysSummary = data
+    ? `${data.priorityAlerts.length} High Priority Incident${data.priorityAlerts.length === 1 ? "" : "s"} · ${kpis!.criticalAssets} Critical Asset${kpis!.criticalAssets === 1 ? "" : "s"} · ${kpis!.expertsNearRetirement} Knowledge Risk${kpis!.expertsNearRetirement === 1 ? "" : "s"}`
+    : null;
+
   return (
     <PageShell
-      title="Good Morning, Plant Operations Team"
-      subtitle={`${data?.plant.name ?? "Apex Steel"} · ${data?.plant.location ?? "Industrial Zone"} — Command Center`}
+      title="Industrial Brain"
+      subtitle={
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="flex items-center gap-1.5 font-medium">
+            <span
+              className={`inline-flex h-2 w-2 rounded-full ${data ? PLANT_STATUS_DOT[data.plantStatus] : "bg-slate-400"}`}
+            />
+            {data?.plantStatusLabel ?? "Checking plant status…"}
+          </span>
+          {todaysSummary && <span>{todaysSummary}</span>}
+        </div>
+      }
       hero={
-        <HeroBand>
+        <HeroBand cols={4}>
           <HeroMetricCard
-            label="Documents Indexed"
-            value={kpis?.documentsIndexed ?? "—"}
-            icon={FileText}
-            trend={12}
-            sparklineData={sparklineFromSeed(kpis?.documentsIndexed ?? 31)}
-          />
-          <HeroMetricCard
-            label="Connected Assets"
-            value={kpis?.connectedAssets ?? "—"}
+            label="Critical Assets"
+            value={kpis?.criticalAssets ?? "—"}
             icon={Boxes}
-            trend={4}
-            trendLabel={`${kpis?.criticalAssets ?? 0} critical`}
-            sparklineData={sparklineFromSeed(kpis?.connectedAssets ?? 12)}
-            sparklineColor="#10b981"
           />
           <HeroMetricCard
-            label="Queries Today"
-            value={kpis?.knowledgeQueriesToday ?? "—"}
-            icon={MessageSquare}
-            trend={18}
-            trendLabel={
-              kpis ? `${kpis.avgSearchTimeSaved}% time saved` : undefined
-            }
-            sparklineData={sparklineFromSeed(kpis?.knowledgeQueriesToday ?? 24)}
-            sparklineColor="oklch(0.65 0.14 78)"
+            label="Open Incidents"
+            value={kpis?.openIncidents ?? "—"}
+            icon={AlertTriangle}
+          />
+          <HeroMetricCard
+            label="Knowledge Captured"
+            value={kpis?.knowledgeCapturedPercent != null ? `${kpis.knowledgeCapturedPercent}%` : "—"}
+            icon={BrainCircuit}
+          />
+          <HeroMetricCard
+            label="Experts Retiring Soon"
+            value={kpis?.expertsNearRetirement ?? "—"}
+            icon={UserRound}
           />
         </HeroBand>
       }
     >
-      <div className="grid lg:grid-cols-2 gap-6">
-        <ContentCard title="Plant Intelligence Overview">
-          <div className="h-56">
-            {healthChart.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={healthChart}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                  >
-                    {healthChart.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-                Loading asset health…
-              </div>
-            )}
+      <ContentCard title="Start Investigation">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">
+              Search machine, symptoms, incidents, SOPs or experts from the top bar.
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every search opens an AI investigation so the engineer moves from problem to evidence to recommendation without restarting.
+            </p>
           </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {healthChart.map((h) => (
-              <span key={h.name} className="text-xs flex items-center gap-1">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ background: h.color }}
-                />
-                {h.name}: {h.value}
-              </span>
-            ))}
-          </div>
-        </ContentCard>
+          <Button render={<Link href="/rca" />}>
+            <Search />
+            Investigate
+          </Button>
+        </div>
+      </ContentCard>
 
+      <div className="grid lg:grid-cols-2 gap-6">
         <ContentCard
-          title="Priority Alerts"
+          title="Recommended Investigations"
           action={
             <Link href="/alerts" className="text-xs text-primary hover:underline">
               View all
@@ -172,7 +164,12 @@ export default function CommandCenterPage() {
                   {alert.severity}
                 </Badge>
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium truncate">{alert.title}</p>
+                  <Link
+                    href={`/rca?asset=${alert.assetTag}&query=${encodeURIComponent(alert.title)}`}
+                    className="font-medium truncate hover:text-primary"
+                  >
+                    {alert.title}
+                  </Link>
                   <Link
                     href={`/assets/${alert.assetTag}`}
                     className="text-xs text-primary hover:underline"
@@ -183,13 +180,67 @@ export default function CommandCenterPage() {
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {alert.confidence}%
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  render={
+                    <Link
+                      href={`/rca?asset=${alert.assetTag}&query=${encodeURIComponent(alert.title)}`}
+                    />
+                  }
+                >
+                  Investigate
+                </Button>
               </div>
             ))}
           </div>
         </ContentCard>
+
+        <ContentCard
+          title="Knowledge At Risk"
+          className="border-amber-500/40 bg-amber-500/5"
+          action={
+            <Link href="/knowledge-risk" className="text-xs text-primary hover:underline">
+              View all
+            </Link>
+          }
+        >
+          {data?.topKnowledgeRisk ? (
+            <div className="space-y-3">
+              <div>
+                <p className="font-semibold">{data.topKnowledgeRisk.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  Retiring in {data.topKnowledgeRisk.retiringInMonths * 30} days
+                </p>
+              </div>
+              <div className="flex items-center gap-4 text-sm">
+                <span>
+                  Knowledge Captured{" "}
+                  <strong className="tabular-nums">
+                    {100 - data.topKnowledgeRisk.knowledgeRiskScore}%
+                  </strong>
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {data.topKnowledgeRisk.assetsManaged.map((a) => (
+                  <Badge key={a} variant="outline" className="text-[10px]">
+                    {a}
+                  </Badge>
+                ))}
+              </div>
+              <Link href="/documents">
+                <Button size="sm" className="w-full">
+                  Capture Expert Knowledge
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No experts tracked yet.</p>
+          )}
+        </ContentCard>
       </div>
 
-      <ContentCard title="Knowledge Activity Feed">
+      <ContentCard title="Organizational Memory Updates">
         <div className="space-y-3">
           {(data?.activityFeed ?? []).map((item) => (
             <div
@@ -214,6 +265,24 @@ export default function CommandCenterPage() {
             </div>
           ))}
         </div>
+      </ContentCard>
+
+      <ContentCard title="Plant Health">
+        {healthChart.length > 0 ? (
+          <div className="flex flex-wrap gap-4">
+            {healthChart.map((h) => (
+              <span key={h.name} className="text-sm flex items-center gap-1.5">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ background: h.color }}
+                />
+                {h.name}: <strong className="tabular-nums">{h.value}</strong>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Loading asset health…</p>
+        )}
       </ContentCard>
     </PageShell>
   );

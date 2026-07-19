@@ -9,6 +9,7 @@ import {
 import { qdrant } from "@/lib/clients/qdrant";
 import { COLLECTION } from "@/lib/ingest/qdrant-store";
 import { countIncidents } from "@/lib/graph/retrieve";
+import { buildKnowledgeRiskReport } from "@/lib/agents/knowledge-risk";
 
 export const runtime = "nodejs";
 
@@ -39,10 +40,11 @@ async function countDocuments(): Promise<number> {
 }
 
 export async function GET() {
-  const [documents, incidentsIndexed, plant] = await Promise.all([
+  const [documents, incidentsIndexed, plant, riskReport] = await Promise.all([
     countDocuments(),
     countIncidents().catch(() => 0),
     Promise.resolve(getPlantOverview()),
+    buildKnowledgeRiskReport().catch(() => null),
   ]);
 
   const assets = getAssets();
@@ -50,9 +52,30 @@ export async function GET() {
   const criticalCount = assets.filter((a) => a.status === "Critical").length;
   const healthSummary = getAssetHealthSummary();
   const activityFeed = getActivityFeed(8);
+  // ALT-014 is the expert-retirement alert; it gets its own Knowledge Risk
+  // card on Command Center instead of sitting in the general alert list.
+  // ponytail: hardcoded id, promote to an alert `category` field if more
+  // cross-cutting alerts like this show up.
   const priorityAlerts = getAlerts({ status: "open" })
     .filter((a) => a.severity === "Critical" || a.severity === "High")
+    .filter((a) => a.id !== "ALT-014")
     .slice(0, 5);
+
+  const topExpert = riskReport?.experts[0] ?? null;
+  const expertsNearRetirement =
+    riskReport?.experts.filter((e) => e.retiringInMonths <= 12).length ?? 0;
+  const knowledgeCapturedPercent = riskReport
+    ? 100 - riskReport.aggregateRiskScore
+    : null;
+
+  const plantStatus =
+    criticalCount > 0 ? "red" : (healthSummary.Warning ?? 0) > 0 ? "amber" : "green";
+  const plantStatusLabel =
+    plantStatus === "red"
+      ? "Critical Asset Failure"
+      : plantStatus === "amber"
+        ? "Attention Required"
+        : "Stable Operations";
 
   return NextResponse.json({
     plant,
@@ -61,12 +84,18 @@ export async function GET() {
       connectedAssets: assets.length,
       activeAlerts: alerts.length,
       criticalAssets: criticalCount,
+      openIncidents: alerts.length,
+      knowledgeCapturedPercent,
+      expertsNearRetirement,
       knowledgeQueriesToday: 47,
       avgSearchTimeSaved: 73,
       incidentsIndexed,
     },
+    plantStatus,
+    plantStatusLabel,
     healthSummary,
     priorityAlerts,
     activityFeed,
+    topKnowledgeRisk: topExpert,
   });
 }

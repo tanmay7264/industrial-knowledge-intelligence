@@ -15,6 +15,9 @@ export interface GraphNode {
   id: string;
   label: string;
   type: NodeType;
+  /** Real Neo4j properties, surfaced when the query fetched them — never fabricated. */
+  date?: string;
+  docType?: string;
 }
 
 export interface GraphEdge {

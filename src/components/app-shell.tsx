@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, Play } from "lucide-react";
+import { Menu } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { GlobalSearch } from "@/components/global-search";
 import { SidebarProvider, useSidebar } from "@/components/sidebar-context";
@@ -64,13 +63,6 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                 {health === null ? "Checking" : allOnline ? "Online" : "Degraded"}
               </span>
             </div>
-            <Link
-              href="/demo"
-              className="flex items-center gap-1.5 rounded-md bg-primary px-2.5 sm:px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors whitespace-nowrap glow-primary"
-            >
-              <Play className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Demo</span>
-            </Link>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain">
