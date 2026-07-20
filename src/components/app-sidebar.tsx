@@ -15,6 +15,7 @@ import {
   Brain,
   ChevronLeft,
   ChevronRight,
+  Workflow,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -45,6 +46,10 @@ const IOM_NAV: NavItem[] = [
   { href: "/playbook", label: "Operational Playbooks", icon: BookOpen },
 ];
 
+const GUIDE_NAV: NavItem[] = [
+  { href: "/how-it-works", label: "How It Works", icon: Workflow },
+];
+
 function NavLink({
   item,
   collapsed,
@@ -63,6 +68,7 @@ function NavLink({
     <Link
       href={item.href}
       title={item.label}
+      data-tour-id={item.href}
       onClick={onNavigate}
       className={cn(
         "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
@@ -149,6 +155,22 @@ function SidebarPanel({
         )}
         <div className="space-y-0.5">
           {IOM_NAV.map((item) => (
+            <NavLink
+              key={item.href}
+              item={item}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+
+        {!collapsed && (
+          <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/45">
+            Guide
+          </p>
+        )}
+        <div className="space-y-0.5">
+          {GUIDE_NAV.map((item) => (
             <NavLink
               key={item.href}
               item={item}

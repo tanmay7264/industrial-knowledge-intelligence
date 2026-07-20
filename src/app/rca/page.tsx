@@ -471,7 +471,7 @@ function RCAInner() {
                 <GitBranch />
                 View AI Reasoning Graph
               </Button>
-              <Button render={<Link href={`/playbook?asset=${report.asset}`} />}>
+              <Button render={<Link href={`/playbook?q=${encodeURIComponent(report.query)}`} />}>
                 <ClipboardCheck />
                 Generate AI Operational Playbook
               </Button>

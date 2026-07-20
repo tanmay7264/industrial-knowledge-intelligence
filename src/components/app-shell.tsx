@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Menu } from "lucide-react";
+import { Compass, Menu } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { GlobalSearch } from "@/components/global-search";
 import { SidebarProvider, useSidebar } from "@/components/sidebar-context";
+import { TourProvider, useTour } from "@/components/tour-context";
+import { GuidedTour } from "@/components/guided-tour";
 import { Button } from "@/components/ui/button";
 
 type HealthData = Record<string, "ok" | "down">;
@@ -12,6 +14,7 @@ type HealthData = Record<string, "ok" | "down">;
 function AppShellInner({ children }: { children: React.ReactNode }) {
   const [health, setHealth] = useState<HealthData | null>(null);
   const { openMobile } = useSidebar();
+  const { start: startTour } = useTour();
 
   useEffect(() => {
     const fetchHealth = () =>
@@ -46,6 +49,16 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           </Button>
           <GlobalSearch />
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={startTour}
+              aria-label="Take the guided tour"
+              title="Take the guided tour"
+            >
+              <Compass className="h-4 w-4" />
+            </Button>
             <div
               className="hidden sm:flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground"
               title={allOnline ? "All systems online" : "Degraded"}
@@ -69,6 +82,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      <GuidedTour />
     </div>
   );
 }
@@ -76,7 +90,9 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <AppShellInner>{children}</AppShellInner>
+      <TourProvider>
+        <AppShellInner>{children}</AppShellInner>
+      </TourProvider>
     </SidebarProvider>
   );
 }
