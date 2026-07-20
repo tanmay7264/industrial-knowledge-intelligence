@@ -9,7 +9,7 @@ type SparklineProps = {
 
 export function Sparkline({
   data,
-  color = "oklch(0.56 0.16 222)",
+  color = "oklch(0.337 0.055 163.4)",
   className,
   height = 40,
 }: SparklineProps) {

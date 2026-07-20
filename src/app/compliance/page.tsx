@@ -67,9 +67,9 @@ const VERDICT_META: Record<
     chart: "#ef4444",
   },
   UNKNOWN: {
-    color: "text-slate-600",
-    bg: "bg-slate-100",
-    border: "border-slate-200",
+    color: "text-muted-foreground",
+    bg: "bg-muted",
+    border: "border-border",
     icon: HelpCircle,
     chart: "#64748b",
   },
@@ -79,7 +79,7 @@ const VERDICT_BADGE: Record<Verdict, string> = {
   COVERED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
   PARTIAL: "bg-amber-50 text-amber-700 border border-amber-200",
   GAP: "bg-red-50 text-red-700 border border-red-200",
-  UNKNOWN: "bg-slate-100 text-slate-600 border border-slate-200",
+  UNKNOWN: "bg-muted text-muted-foreground border border-border",
 };
 
 const VERDICT_RANK: Record<Verdict, number> = {
@@ -149,7 +149,7 @@ function FindingRow({
 }) {
   const m = VERDICT_META[row.verdict];
   return (
-    <div className="group flex flex-col sm:flex-row sm:items-start gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors border-b border-border/40 last:border-0">
+    <div className="group flex flex-col sm:flex-row sm:items-start gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors border-b border-border/40 last:border-0">
       {/* Verdict indicator */}
       <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${m.bg} border ${m.border}`}>
         <m.icon className={`h-3.5 w-3.5 ${m.color}`} />
@@ -371,7 +371,7 @@ export default function CompliancePage() {
 
       <div className="flex-1 p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto w-full min-w-0">
         {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400">
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -522,8 +522,9 @@ export default function CompliancePage() {
                         </Pie>
                         <Tooltip
                           contentStyle={{
-                            background: "#0d1117",
-                            border: "1px solid rgba(255,255,255,0.08)",
+                            background: "var(--popover)",
+                            color: "var(--popover-foreground)",
+                            border: "1px solid var(--border)",
                             borderRadius: 10,
                             fontSize: 12,
                           }}
@@ -548,8 +549,8 @@ export default function CompliancePage() {
                         <button
                           key={v}
                           onClick={() => setVerdictFilter((cur) => (cur === v ? "ALL" : v))}
-                          className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-white/[0.04] ${
-                            verdictFilter === v ? "bg-white/[0.06]" : ""
+                          className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-muted/60 ${
+                            verdictFilter === v ? "bg-muted" : ""
                           }`}
                         >
                           <span
@@ -596,7 +597,7 @@ export default function CompliancePage() {
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Gap rate</span>
-                      <span className={`font-semibold tabular-nums ${report.summary.GAP > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                      <span className={`font-semibold tabular-nums ${report.summary.GAP > 0 ? "text-red-600" : "text-emerald-600"}`}>
                         {Math.round((report.summary.GAP / report.totalRequirements) * 100)}%
                       </span>
                     </div>

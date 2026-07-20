@@ -53,7 +53,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
               <span
                 className={`inline-flex h-2 w-2 rounded-full ${
                   health === null
-                    ? "bg-slate-400"
+                    ? "bg-muted-foreground"
                     : allOnline
                       ? "bg-emerald-500"
                       : "bg-destructive"

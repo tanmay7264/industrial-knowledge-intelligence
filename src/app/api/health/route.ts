@@ -34,6 +34,9 @@ async function pingRedis(): Promise<Status> {
     // Fail fast when the server is genuinely unreachable instead of reconnecting
     retryStrategy: () => null,
   });
+  // Without a listener, connection failures surface as noisy unhandled
+  // "error" events on every poll; the try/catch below already handles them.
+  redis.on("error", () => {});
 
   try {
     await redis.connect();

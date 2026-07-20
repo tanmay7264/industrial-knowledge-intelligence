@@ -76,7 +76,7 @@ export default function CommandCenterPage() {
         .map(([name, value]) => ({
           name,
           value,
-          color: HEALTH_COLORS[name] ?? "#94a3b8",
+          color: HEALTH_COLORS[name] ?? "#7c8a80",
         }))
     : [];
 
@@ -93,7 +93,7 @@ export default function CommandCenterPage() {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="flex items-center gap-1.5 font-medium">
             <span
-              className={`inline-flex h-2 w-2 rounded-full ${data ? PLANT_STATUS_DOT[data.plantStatus] : "bg-slate-400"}`}
+              className={`inline-flex h-2 w-2 rounded-full ${data ? PLANT_STATUS_DOT[data.plantStatus] : "bg-muted-foreground"}`}
             />
             {data?.plantStatusLabel ?? "Checking plant status…"}
           </span>
@@ -172,7 +172,7 @@ export default function CommandCenterPage() {
                   </Link>
                   <Link
                     href={`/assets/${alert.assetTag}`}
-                    className="text-xs text-primary hover:underline"
+                    className="text-xs font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
                   >
                     {alert.assetTag}
                   </Link>
@@ -258,7 +258,7 @@ export default function CommandCenterPage() {
               </div>
               <Link
                 href={`/assets/${item.assetTag}`}
-                className="text-xs text-primary shrink-0 sm:self-start"
+                className="text-xs font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary shrink-0 sm:self-start"
               >
                 {item.assetTag}
               </Link>

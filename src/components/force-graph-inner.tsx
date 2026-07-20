@@ -22,17 +22,17 @@ interface FGLink {
 }
 
 const NODE_COLORS: Record<NodeType, string> = {
-  Document: "#3b82f6",
+  Document: "#17402f",
   Equipment: "#f97316",
   RegulatoryRef: "#ef4444",
   Person: "#22c55e",
-  Parameter: "#a855f7",
+  Parameter: "#8a6d1f",
   Incident: "#dc2626",
   Symptom: "#f59e0b",
   RootCause: "#b45309",
   Resolution: "#10b981",
   Outcome: "#64748b",
-  LessonLearned: "#8b5cf6",
+  LessonLearned: "#d9f36e",
 };
 
 interface Props {
@@ -136,7 +136,7 @@ export default function ForceGraphInner({
       graphData={graphData}
       width={width}
       height={height}
-      backgroundColor="#020617"
+      backgroundColor="#051f19"
       nodeCanvasObject={paintNode as (n: object, ctx: CanvasRenderingContext2D, gs: number) => void}
       nodeCanvasObjectMode={() => "replace"}
       linkCanvasObjectMode={() => "after"}

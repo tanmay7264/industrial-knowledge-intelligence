@@ -83,7 +83,7 @@ export function TopNav() {
                 className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
                   active
                     ? "bg-primary/15 text-primary ring-1 ring-primary/30"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -96,7 +96,7 @@ export function TopNav() {
             <button
               type="button"
               onClick={() => setMoreOpen((o) => !o)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/10"
             >
               <MoreHorizontal className="h-3.5 w-3.5" />
               <span className="hidden md:inline">More</span>
@@ -110,7 +110,7 @@ export function TopNav() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMoreOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/60"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10"
                     >
                       <Icon className="h-3.5 w-3.5" />
                       {item.label}
@@ -129,7 +129,7 @@ export function TopNav() {
           >
             <span
               className={`inline-flex h-2 w-2 rounded-full ${
-                health === null ? "bg-slate-400" : allOnline ? "bg-emerald-500" : "bg-destructive"
+                health === null ? "bg-muted-foreground" : allOnline ? "bg-emerald-500" : "bg-destructive"
               }`}
             />
             <span>{health === null ? "Checking" : allOnline ? "Online" : "Degraded"}</span>

@@ -237,7 +237,7 @@ function RCAInner() {
                 className={`flex items-center gap-3 rounded-lg border p-3 text-sm ${
                   i <= stage
                     ? "border-primary/30 bg-primary/5 text-foreground"
-                    : "border-border/60 text-muted-foreground/50"
+                    : "border-border/60 text-muted-foreground"
                 }`}
               >
                 <span
@@ -246,7 +246,7 @@ function RCAInner() {
                       ? "bg-emerald-500"
                       : i === stage
                         ? "bg-primary animate-pulse"
-                        : "bg-muted"
+                        : "bg-muted-foreground/30"
                   }`}
                 />
                 {label}

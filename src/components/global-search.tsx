@@ -46,7 +46,7 @@ export function GlobalSearch() {
           onFocus={() => query.length >= 2 && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder="Search machine, symptoms, incidents, SOPs or experts..."
-          className="pl-9 h-9 text-sm bg-muted/40 border-border w-full min-w-0 sm:placeholder:text-muted-foreground"
+          className="pl-9 h-9 text-sm bg-muted border-border w-full min-w-0 sm:placeholder:text-muted-foreground"
         />
       </form>
 
@@ -61,7 +61,7 @@ export function GlobalSearch() {
             <button
               key={a.tag}
               type="button"
-              className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60 flex items-center justify-between gap-2"
+              className="w-full text-left px-3 py-2 text-sm hover:bg-primary/10 flex items-center justify-between gap-2"
               onMouseDown={() => router.push(`/assets/${a.tag}`)}
             >
               <span>
@@ -74,7 +74,7 @@ export function GlobalSearch() {
             <button
               key={a.id}
               type="button"
-              className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60"
+              className="w-full text-left px-3 py-2 text-sm hover:bg-primary/10"
               onMouseDown={() =>
                 router.push(
                   `/rca?asset=${encodeURIComponent(a.assetTag)}&query=${encodeURIComponent(a.title)}`
@@ -87,7 +87,7 @@ export function GlobalSearch() {
           ))}
           <button
             type="button"
-            className="w-full text-left px-3 py-2 text-sm text-primary hover:bg-muted/60 border-t"
+            className="w-full text-left px-3 py-2 text-sm text-primary hover:bg-primary/10 border-t"
             onMouseDown={() =>
               router.push(`/rca?query=${encodeURIComponent(query.trim())}`)
             }

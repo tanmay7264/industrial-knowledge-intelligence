@@ -51,9 +51,9 @@ const STATUS_LABEL: Record<RowStatus, string> = {
 
 const STATUS_STYLES: Record<RowStatus, string> = {
   queued: "bg-muted text-muted-foreground border-transparent",
-  processing: "bg-blue-500 text-white border-transparent animate-pulse",
+  processing: "bg-primary text-primary-foreground border-transparent animate-pulse",
   success: "bg-emerald-500 text-white border-transparent",
-  partial: "bg-yellow-500 text-white border-transparent",
+  partial: "bg-yellow-500 text-yellow-950 border-transparent",
   error: "bg-destructive text-destructive-foreground border-transparent",
 };
 
@@ -223,7 +223,7 @@ export default function DocumentsPage() {
                   key={stage}
                   variant="outline"
                   className={
-                    i <= current ? "border-primary/50 text-primary" : "text-muted-foreground/40"
+                    i <= current ? "border-primary/50 text-primary" : "text-muted-foreground/70"
                   }
                 >
                   {i + 1}. {stage}

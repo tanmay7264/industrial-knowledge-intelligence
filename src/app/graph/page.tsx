@@ -31,21 +31,21 @@ import type { OperationalPlaybook } from "@/lib/agents/playbook-types";
 
 const ForceGraphInner = dynamic(
   () => import("@/components/force-graph-inner"),
-  { ssr: false, loading: () => <div className="flex items-center justify-center h-full text-slate-500 text-sm">Loading graph…</div> }
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-full text-white/55 text-sm">Loading graph…</div> }
 );
 
 const NODE_COLORS: Record<NodeType, string> = {
-  Document: "#3b82f6",
+  Document: "#17402f",
   Equipment: "#f97316",
   RegulatoryRef: "#ef4444",
   Person: "#22c55e",
-  Parameter: "#a855f7",
+  Parameter: "#8a6d1f",
   Incident: "#dc2626",
   Symptom: "#f59e0b",
   RootCause: "#b45309",
   Resolution: "#10b981",
   Outcome: "#64748b",
-  LessonLearned: "#8b5cf6",
+  LessonLearned: "#d9f36e",
 };
 
 // Plain-language names for what are, underneath, Neo4j node labels.
@@ -363,16 +363,16 @@ function GraphPageInner() {
         {/* Graph canvas — first on mobile */}
         <div
           ref={containerRef}
-          className="order-1 lg:order-2 flex-1 min-h-[280px] sm:min-h-[360px] lg:min-h-0 bg-slate-950 relative overflow-hidden"
+          className="order-1 lg:order-2 flex-1 min-h-[280px] sm:min-h-[360px] lg:min-h-0 bg-forest relative overflow-hidden"
         >
           {loading && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
               <div className="space-y-2 w-64 max-w-[85vw]">
-                <Skeleton className="h-3 w-full bg-slate-800" />
-                <Skeleton className="h-3 w-4/5 bg-slate-800" />
-                <Skeleton className="h-3 w-3/5 bg-slate-800" />
+                <Skeleton className="h-3 w-full bg-forest-2" />
+                <Skeleton className="h-3 w-4/5 bg-forest-2" />
+                <Skeleton className="h-3 w-3/5 bg-forest-2" />
               </div>
-              <p className="text-slate-500 text-sm px-4 text-center">
+              <p className="text-white/55 text-sm px-4 text-center">
                 Connecting organizational memory…
               </p>
             </div>
@@ -381,8 +381,8 @@ function GraphPageInner() {
           {error && !loading && (
             <div className="absolute inset-0 flex items-center justify-center p-4">
               <div className="text-center space-y-2">
-                <p className="text-destructive text-sm">{error}</p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-white/55 text-xs">
                   Make sure Neo4j is running and knowledge has been added.
                 </p>
               </div>
@@ -391,9 +391,9 @@ function GraphPageInner() {
 
           {!subgraph && !loading && !error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center p-4">
-              <div className="w-16 h-16 rounded-full border-2 border-slate-700 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full border-2 border-forest-2 flex items-center justify-center">
                 <svg
-                  className="w-8 h-8 text-slate-600"
+                  className="w-8 h-8 text-white/40"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -405,7 +405,7 @@ function GraphPageInner() {
                   <line x1="7" y1="13" x2="17" y2="18" strokeWidth="1.5" />
                 </svg>
               </div>
-              <p className="text-slate-500 text-sm max-w-xs">
+              <p className="text-white/55 text-sm max-w-xs">
                 Search a machine, symptom, or engineer to see why Industrial Brain
                 would recommend a resolution.
               </p>
@@ -414,7 +414,7 @@ function GraphPageInner() {
 
           {subgraph && subgraph.nodes.length === 0 && !loading && (
             <div className="absolute inset-0 flex items-center justify-center p-4">
-              <p className="text-slate-500 text-sm text-center">
+              <p className="text-white/55 text-sm text-center">
                 No connected knowledge found for &quot;{query}&quot;. Try adding
                 documents first or use a different search term.
               </p>

@@ -108,7 +108,7 @@ export function HeroMetricCard({
   const trendUp = trend !== undefined && trend >= 0;
 
   return (
-    <div className="card-rich rounded-xl border border-border/60 p-4 sm:p-5 min-w-0">
+    <div className="card-rich bg-card rounded-xl border border-border/60 p-4 sm:p-5 min-w-0">
       <div className="flex items-start justify-between gap-2 sm:gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-muted-foreground mb-1.5 sm:mb-2">
@@ -172,7 +172,7 @@ export function ContentCard({
   return (
     <div
       className={cn(
-        "card-rich rounded-xl border border-border/60 p-4 sm:p-5 min-w-0 overflow-hidden",
+        "card-rich bg-card rounded-xl border border-border/60 p-4 sm:p-5 min-w-0 overflow-hidden",
         className
       )}
     >

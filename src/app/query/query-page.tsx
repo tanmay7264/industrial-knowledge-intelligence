@@ -45,14 +45,14 @@ interface Message {
 
 const CONFIDENCE_STYLES: Record<ConfidenceLevel, string> = {
   High: "bg-emerald-500 text-white border-transparent",
-  Medium: "bg-yellow-500 text-white border-transparent",
+  Medium: "bg-yellow-500 text-yellow-950 border-transparent",
   Low: "bg-destructive text-destructive-foreground border-transparent",
 };
 
 const MODE_STYLES: Record<RetrievalMode, string> = {
-  vector: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  graph: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  hybrid: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+  vector: "bg-primary/15 text-primary border-primary/30",
+  graph: "bg-forest-2/15 text-forest-2 border-forest-2/30",
+  hybrid: "bg-lime/25 text-ink border-lime/50",
 };
 
 const MODE_LABELS: Record<RetrievalMode, string> = {
@@ -310,7 +310,7 @@ export default function QueryPage() {
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-800">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
                 Operational Query
               </h2>
               <p className="text-muted-foreground text-sm max-w-md">

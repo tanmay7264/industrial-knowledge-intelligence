@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import "./globals.css";
@@ -9,10 +9,10 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-space",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["600", "700", "800"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <AppShell>{children}</AppShell>
         <Toaster position="top-center" theme="dark" richColors closeButton />

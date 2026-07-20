@@ -19,10 +19,18 @@ export function MermaidDiagram({ chart, id = "diagram" }: MermaidDiagramProps) {
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,
-          theme: "dark",
-          darkMode: true,
+          theme: "base",
           securityLevel: "loose",
           flowchart: { curve: "basis", useMaxWidth: true },
+          themeVariables: {
+            primaryColor: "#e8efe6",
+            primaryTextColor: "#0b1613",
+            primaryBorderColor: "#17402f",
+            lineColor: "#4b5a52",
+            secondaryColor: "#f2f5ee",
+            tertiaryColor: "#ffffff",
+            fontFamily: "var(--font-inter, sans-serif)",
+          },
         });
         const { svg } = await mermaid.render(`mermaid-${id}`, chart);
         if (!cancelled && ref.current) {
